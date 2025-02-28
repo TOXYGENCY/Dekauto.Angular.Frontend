@@ -40,6 +40,9 @@
     </a>
     <!-- кнопка скрыта, и нужна только для того, чтобы ангуляр подгрузил класс p-button, без которого <a> не будет иметь стиля -->
     <p-button [style]="{'display': 'none'}" label="Поиск" (click)="searchSubmit()"></p-button>
+
+    <!-- тестовая кнопка экспорта файла -->
+    <p-button label="[тест экспорта]" (click)="testExport()"></p-button>
     <!-- роутер на список студентов -->
     <router-outlet/>
 </div>

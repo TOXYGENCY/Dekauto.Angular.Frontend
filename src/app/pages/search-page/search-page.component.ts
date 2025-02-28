@@ -83,4 +83,9 @@ export class SearchPageComponent {
   searchSubmit(){
     this.router.navigate(['students']);
   }
+
+  // TODO: убрать тест экспорта после реализации списка студентов
+  testExport() {
+    
+  }
 }
