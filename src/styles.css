@@ -1,9 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
-@use "primeicons/primeicons.css";
 @import "tailwindcss";
 @import "tailwindcss-primeui";
 
 body {
     height: 100vh;
     font-size: 20px;
+}
+label {
+    display: block; /* для отображения подписей сверху к полям */
 }

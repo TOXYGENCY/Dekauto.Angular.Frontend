@@ -1,9 +1,13 @@
 import { Routes } from '@angular/router';
 import { SearchPageComponent } from './pages/search-page/search-page.component';
+import { StudentsPageComponent } from './pages/students-page/students-page.component';
 
 
 export const routes: Routes = [
-    { path: '', component: SearchPageComponent },
-    { path: 'search', component: SearchPageComponent },
-    { path: 'поиск', component: SearchPageComponent },
+    { path: '', redirectTo: 'search', pathMatch: 'full' },
+    { path: 'search', component: SearchPageComponent,
+        children: [
+            { path: 'students', component: StudentsPageComponent }
+        ]
+     },
 ];
