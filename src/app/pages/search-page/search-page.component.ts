@@ -6,6 +6,9 @@ import { Student } from '../../domain-models/Student';
 import { Group } from '../../domain-models/Group';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { ApiExportService } from '../../api-services/export/api-export.service';
+import { HttpResponse } from '@angular/common/http';
+import { student_export_default_name } from '../../app.config';
 
 @Component({
   selector: 'app-search-page',
@@ -16,50 +19,18 @@ import { RouterModule } from '@angular/router';
   styleUrl: './search-page.component.css'
 })
 export class SearchPageComponent {
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) { }
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, 
+    private apiExportService: ApiExportService, 
+  ) { }
 
   // students: Student[] = [];
   selectedStudent: Student | null = null;
   // groups: Group[] = [];
   selectedGroup: Group | null = null;
+  students: Student[] = [];
   //тестовые данные:
-  students: Student[] = [
-    {
-      name: 'Иван',
-      surname: 'Иванов',
-      patronymic: 'Иванович',
-      fullName: 'Иван Иванов Иванович',
-      group: 'ИВТ-21-1'
-    },
-    {
-      name: 'Петр',
-      surname: 'Петров',
-      patronymic: 'Петрович',
-      fullName: 'Петр Петров Петрович',
-      group: 'ИВТ-21-1'
-    },
-    {
-      name: 'Сидор',
-      surname: 'Сидоров',
-      patronymic: 'Сидорович',
-      fullName: 'Сидор Сидоров Сидорович',
-      group: 'ИВТ-21-1'
-    },
-    {
-      name: 'Василий',
-      surname: 'Васильев',
-      patronymic: 'Васильевич',
-      fullName: 'Василий Васильев Васильевич',
-      group: 'ИВТ-21-1'
-    },
-    {
-      name: 'Александр',
-      surname: 'Александров',
-      patronymic: 'Александрович',
-      fullName: 'Александр Александров Александрович',
-      group: 'АВТ-25-1'
-    }
-  ];
+  studentId1 = "9fa85f64-5717-4562-b3fc-2c963f66afa6";
+  groupId1 = "00000000-0000-0000-0000-000000000000";
   groups: Group[] = [
     {
       name: 'ИВТ-21-1'
@@ -86,6 +57,56 @@ export class SearchPageComponent {
 
   // TODO: убрать тест экспорта после реализации списка студентов
   testExport() {
-    
+    this.apiExportService.exportStudentCardAsync(this.studentId1).subscribe({
+      next: (response) => {
+        this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+  testExportGroup() {
+    this.apiExportService.exportGroupCardsAsync(this.groupId1).subscribe({
+      next: (response) => {
+        this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+  saveFile(fileBlob: Blob, fileName: string) {
+    const link = document.createElement('a');
+    const url = window.URL.createObjectURL(fileBlob);
+
+    link.href = url;
+    link.download = fileName;
+    link.click();
+
+    window.URL.revokeObjectURL(url);
+    link.remove();
+  }
+
+  parseFileName(response: HttpResponse<Blob>, defaultName: string = 'file'): string {
+    const contentDisposition = response.headers.get('Content-Disposition') || '';
+
+    // Вариант 1: Обработка стандартного filename
+    const standardMatch = contentDisposition.match(/filename="(.*?)"/);
+
+    // Вариант 2: Обработка UTF-8 filename* - предпочтительнее
+    const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.*?)(;|$)/);
+
+    let fileName = defaultName;
+
+    if (utf8Match) {
+      fileName = decodeURIComponent(utf8Match[1]);
+    } else if (standardMatch) {
+      fileName = standardMatch[1];
+    }
+
+    // Удаляем кавычки если есть
+    return fileName.replace(/^"(.*)"$/, '$1');
   }
 }

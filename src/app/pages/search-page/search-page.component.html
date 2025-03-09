@@ -42,7 +42,8 @@
     <p-button [style]="{'display': 'none'}" label="Поиск" (click)="searchSubmit()"></p-button>
 
     <!-- тестовая кнопка экспорта файла -->
-    <p-button label="[тест экспорта]" (click)="testExport()"></p-button>
+    <p-button severity="info" label="[тест экспорта]" (click)="testExport()"></p-button>
+    <p-button severity="info" label="[тест экспорта группы]" (click)="testExportGroup()"></p-button>
     <!-- роутер на список студентов -->
     <router-outlet/>
 </div>

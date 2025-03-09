@@ -1,8 +1,78 @@
+// Соответствует модели StudentDto в бекенде
 export interface Student {
-    name: string
-    surname: string
-    patronymic: string
-    fullName: string
-    group: string
-    // TODO: дополнить
+    Id?: string | null;
+    UserId?: string | null;
+    Name?: string | null;
+    Surname?: string | null;
+    Pathronymic?: string | null;
+    Gender?: boolean | null;
+    BirthdayDate?: string | null;  // ISO date string (YYYY-MM-DD)
+    BirthdayPlace?: string | null;
+    PhoneNumber?: string | null;
+    Email?: string | null;
+    EnrollementOrderDate?: string | null;
+    EnrollementOrderNum?: string | null;
+    Faculty?: string | null;
+    CourseOfTraining?: string | null;
+    Course?: string | null;
+    PassportSerial?: string | null;
+    PassportNumber?: string | null;
+    PassportIssuancePlace?: string | null;
+    PassportIssuanceDate?: string | null;
+    PassportIssuanceCode?: string | null;
+    AddressRegistrationIndex?: string | null;
+    AddressRegistrationOblKrayAvtobl?: string | null;
+    AddressRegistrationDistrict?: string | null;
+    AddressRegistrationStreet?: string | null;
+    AddressRegistrationCity?: string | null;
+    AddressRegistrationHouse?: string | null;
+    AddressRegistrationHousing?: string | null;
+    AddressRegistrationApartment?: string | null;
+    AddressResidentialIndex?: string | null;
+    AddressResidentialOblKrayAvtobl?: string | null;
+    AddressResidentialDistrict?: string | null;
+    AddressResidentialStreet?: string | null;
+    AddressResidentialCity?: string | null;
+    AddressResidentialHouse?: string | null;
+    AddressResidentialHousing?: string | null;
+    AddressResidentialApartment?: string | null;
+    LivingInDormitory?: boolean | null;
+    GroupId?: string | null;
+    GiaExam1Name?: string | null;
+    GiaExam1Score?: number | null;
+    GiaExam1Note?: string | null;
+    GiaExam2Name?: string | null;
+    GiaExam2Score?: number | null;
+    GiaExam2Note?: string | null;
+    GiaExam3Name?: string | null;
+    GiaExam3Score?: number | null;
+    GiaExam3Note?: string | null;
+    GiaExam4Name?: string | null;
+    GiaExam4Score?: number | null;
+    GiaExam4Note?: string | null;
+    MilitaryService?: boolean | null;
+    MaritalStatus?: boolean | null;
+    OoId?: string | null;
+    OoExitYear?: number | null;
+    EducationReceived?: string | null;
+    EducationForm?: string | null;
+    EducationBase?: string | null;
+    EducationStartYear?: number | null;
+    EducationFinishYear?: number | null;
+    EducationTime?: number | null;
+    EducationRelationForm?: string | null;
+    EducationRelationNum?: string | null;
+    EducationRelationDate?: string | null;
+    EducationReceivedSerial?: string | null;
+    EducationReceivedNum?: string | null;
+    EducationReceivedDate?: string | null;
+    EducationReceivedEndYear?: number | null;
+    GradeBook?: string | null;
+    BonusScores?: number | null;
+    Citizenship?: string | null;
+    AddressRegistrationTypeId?: string | null;
+    AddressResidentialTypeId?: string | null;
+    AddressRegistrationHousingType?: string | null;
+    AddressResidentialHousingType?: string | null;
+    Education?: string | null;
 }
