@@ -1,4 +1,4 @@
 export interface Group {
-    name: string
-    // TODO: дополнить поля
+    id: string
+    Name: string
 }

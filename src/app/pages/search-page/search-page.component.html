@@ -8,12 +8,12 @@
         filterBy="fullName" [showClear]="true" placeholder="Введите/выберите ФИО студента" class="mb-6 w-full md:w-96">
         <ng-template #selectedItem let-student id="search">
             <div class="flex items-center gap-2">
-                <div>{{ student.fullName }}</div>
+                <div>{{ student.surname }} {{ student.name }} {{ student.pathronymic }}</div>
             </div>
         </ng-template>
         <ng-template let-student #item>
             <div class="flex items-center gap-2">
-                <div>{{ student.fullName }}</div>
+                <div>{{ student.surname }} {{ student.name }} {{ student.pathronymic }}</div>
             </div>
         </ng-template>
     </p-select>
@@ -39,11 +39,11 @@
         Поиск
     </a>
     <!-- кнопка скрыта, и нужна только для того, чтобы ангуляр подгрузил класс p-button, без которого <a> не будет иметь стиля -->
-    <p-button [style]="{'display': 'none'}" label="Поиск" (click)="searchSubmit()"></p-button>
+    <p-button type="submit" [style]="{'display': 'none'}" label="Поиск"></p-button>
 
     <!-- тестовая кнопка экспорта файла -->
-    <p-button severity="info" label="[тест экспорта]" (click)="testExport()"></p-button>
-    <p-button severity="info" label="[тест экспорта группы]" (click)="testExportGroup()"></p-button>
+    <!-- <p-button severity="info" label="[тест экспорта]" (click)="testExport()"></p-button>
+    <p-button severity="info" label="[тест экспорта группы]" (click)="testExportGroup()"></p-button> -->
     <!-- роутер на список студентов -->
     <router-outlet/>
 </div>

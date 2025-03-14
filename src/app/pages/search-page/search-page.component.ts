@@ -9,6 +9,9 @@ import { RouterModule } from '@angular/router';
 import { ApiExportService } from '../../api-services/export/api-export.service';
 import { HttpResponse } from '@angular/common/http';
 import { student_export_default_name } from '../../app.config';
+import { ApiStudentsService } from '../../api-services/students/api-students.service';
+import { Observable } from 'rxjs/internal/Observable';
+import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
 
 @Component({
   selector: 'app-search-page',
@@ -20,62 +23,84 @@ import { student_export_default_name } from '../../app.config';
 })
 export class SearchPageComponent {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, 
-    private apiExportService: ApiExportService, 
-  ) { }
+    private apiExportService: ApiExportService, private apiStudentsService: ApiStudentsService,
+    private apiGroupsService: ApiGroupsService) { }
 
-  // students: Student[] = [];
-  selectedStudent: Student | null = null;
-  // groups: Group[] = [];
-  selectedGroup: Group | null = null;
+  ngOnInit() {
+    this.getAllStudentsAsync();
+    this.getAllGroupsAsync();
+  }
+
+  selectedStudent: Student | undefined;
+  groups: Group[] = [];
+
+  selectedGroup: Group | undefined;
   students: Student[] = [];
-  //тестовые данные:
-  studentId1 = "9fa85f64-5717-4562-b3fc-2c963f66afa6";
-  groupId1 = "00000000-0000-0000-0000-000000000000";
-  groups: Group[] = [
-    {
-      name: 'ИВТ-21-1'
-    },
-    {
-      name: 'ИВТ-21-2'
-    },
-    {
-      name: 'АВТ-25-1'
-    }
-  ];
 
   // Вставить группу студента, которого выбрали
+  // TODO: пофиксить
   syncGroup() {
     if (this.selectedStudent) {
-      // this.selectedGroup = this.selectedStudent.group
+      console.log("🚀 ~ SearchPageComponent ~ syncGroup ~ this.selectedStudent:", this.selectedStudent)
+      this.selectedGroup = this.groups.find(group => group.id == this.selectedStudent?.GroupId);
+      console.log("🚀 ~ SearchPageComponent ~ syncGroup ~ this.selectedStudent?.GroupId:", this.selectedStudent?.GroupId)
+      console.log("🚀 ~ SearchPageComponent ~ syncGroup ~ this.selectedGroup:", this.selectedGroup)
     }
   }
+
+  getAllStudentsAsync() {
+    this.apiStudentsService.getAllStudentsAsync().subscribe({
+      next: response => {
+        this.students = response;
+        console.log("🚀 ~ SearchPageComponent ~ this.apiStudentsService.getAllStudentsAsync ~ students:", this.students)
+      },
+      error: error => {
+        console.error(error);
+      }
+    });
+  }
+  
+  getAllGroupsAsync() {
+    this.apiGroupsService.getAllGroupsAsync().subscribe({
+      next: (response: any) => {
+        this.groups = response;
+        console.log("🚀 ~ SearchPageComponent ~ this.apiGroupsService.getAllGroupsAsync ~ this.groups:", this.groups)
+      },
+      error: error => {
+        console.error(error);
+      }
+    });
+  }
+
 
   // сам поиск и фильтрация с перенаправлением
   searchSubmit(){
     this.router.navigate(['students']);
+    
   }
 
   // TODO: убрать тест экспорта после реализации списка студентов
-  testExport() {
-    this.apiExportService.exportStudentCardAsync(this.studentId1).subscribe({
-      next: (response) => {
-        this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    });
-  }
-  testExportGroup() {
-    this.apiExportService.exportGroupCardsAsync(this.groupId1).subscribe({
-      next: (response) => {
-        this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    });
-  }
+  // testExport() {
+  //   this.apiExportService.exportStudentCardAsync(this.studentId1).subscribe({
+  //     next: (response) => {
+  //       this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
+  //     },
+  //     error: (error) => {
+  //       console.error(error);
+  //     }
+  //   });
+  // }
+
+  // testExportGroup() {
+  //   this.apiExportService.exportGroupCardsAsync(this.groupId1).subscribe({
+  //     next: (response) => {
+  //       this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
+  //     },
+  //     error: (error) => {
+  //       console.error(error);
+  //     }
+  //   });
+  // }
 
   saveFile(fileBlob: Blob, fileName: string) {
     const link = document.createElement('a');
