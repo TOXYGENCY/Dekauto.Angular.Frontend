@@ -9,5 +9,5 @@ export const routes: Routes = [
         children: [
             { path: 'students', component: StudentsPageComponent }
         ]
-     },
+    },
 ];

@@ -12,6 +12,7 @@ import { student_export_default_name } from '../../app.config';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
+import { CachedDataService } from '../../api-services/cached-data.service';
 
 @Component({
   selector: 'app-search-page',
@@ -24,11 +25,14 @@ import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
 export class SearchPageComponent {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, 
     private apiExportService: ApiExportService, private apiStudentsService: ApiStudentsService,
-    private apiGroupsService: ApiGroupsService) { }
+    private apiGroupsService: ApiGroupsService, private cachedDataService: CachedDataService) { }
 
   ngOnInit() {
-    this.getAllStudentsAsync();
-    this.getAllGroupsAsync();
+    setTimeout(() => {
+      
+      this.getAllStudentsAsync();
+      this.getAllGroupsAsync();
+    }, 1000);
   }
 
   selectedStudent: Student | undefined;
@@ -38,13 +42,9 @@ export class SearchPageComponent {
   students: Student[] = [];
 
   // Вставить группу студента, которого выбрали
-  // TODO: пофиксить
   syncGroup() {
     if (this.selectedStudent) {
-      console.log("🚀 ~ SearchPageComponent ~ syncGroup ~ this.selectedStudent:", this.selectedStudent)
-      this.selectedGroup = this.groups.find(group => group.id == this.selectedStudent?.GroupId);
-      console.log("🚀 ~ SearchPageComponent ~ syncGroup ~ this.selectedStudent?.GroupId:", this.selectedStudent?.GroupId)
-      console.log("🚀 ~ SearchPageComponent ~ syncGroup ~ this.selectedGroup:", this.selectedGroup)
+      this.selectedGroup = this.groups.find(group => group.id == this.selectedStudent?.groupId);
     }
   }
 
@@ -52,7 +52,8 @@ export class SearchPageComponent {
     this.apiStudentsService.getAllStudentsAsync().subscribe({
       next: response => {
         this.students = response;
-        console.log("🚀 ~ SearchPageComponent ~ this.apiStudentsService.getAllStudentsAsync ~ students:", this.students)
+        // Сохраняем в кэш
+        this.cachedDataService.updateStudentsCache(this.students);
       },
       error: error => {
         console.error(error);
@@ -64,7 +65,8 @@ export class SearchPageComponent {
     this.apiGroupsService.getAllGroupsAsync().subscribe({
       next: (response: any) => {
         this.groups = response;
-        console.log("🚀 ~ SearchPageComponent ~ this.apiGroupsService.getAllGroupsAsync ~ this.groups:", this.groups)
+        // Сохраняем в кэш
+        this.cachedDataService.updateGroupsCache(this.groups);
       },
       error: error => {
         console.error(error);
