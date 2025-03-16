@@ -1,5 +1,5 @@
 <!-- Общий контейнер для центрирования всех элементов в нем -->
-<div class="flex flex-col gap-2 max-w-1/2 place-self-center h-full justify-center items-center">
+<div class="flex flex-col gap-2 max-w-1/2 place-self-center mt-10 justify-center items-center">
     <form (ngSubmit)="searchSubmit()">
     <!-- Подпись для поиска -->
     <label for="fullName">Поиск по ФИО студента</label>
@@ -44,6 +44,8 @@
     <!-- тестовая кнопка экспорта файла -->
     <!-- <p-button severity="info" label="[тест экспорта]" (click)="testExport()"></p-button>
     <p-button severity="info" label="[тест экспорта группы]" (click)="testExportGroup()"></p-button> -->
-    <!-- роутер на список студентов -->
-    <router-outlet/>
+</div>
+<div class="flex flex-col gap-2 place-self-center justify-center items-center">
+        <!-- роутер на список студентов -->
+        <router-outlet />
 </div>
