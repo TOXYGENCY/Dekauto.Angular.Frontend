@@ -26,6 +26,8 @@ export const appConfig: ApplicationConfig = {
 
 // общая переменная пути подключения к бекенду
 export const backend_api_url = 'https://localhost:7238/api';
+
+// EXPORT
 export const student_export_url = `${backend_api_url}/export/student`;
 export const group_export_url = `${backend_api_url}/export/group`;
 export const student_export_default_name = "Карточка студента";
