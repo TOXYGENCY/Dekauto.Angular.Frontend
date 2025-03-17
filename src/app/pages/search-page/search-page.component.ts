@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
@@ -7,20 +7,19 @@ import { Group } from '../../domain-models/Group';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { ApiExportService } from '../../api-services/export/api-export.service';
-import { HttpResponse } from '@angular/common/http';
-import { student_export_default_name } from '../../app.config';
+import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
-import { Observable } from 'rxjs/internal/Observable';
 import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
 import { CachedDataService } from '../../api-services/cached-data.service';
+import { backend_api_url } from '../../app.config';
 
 @Component({
   selector: 'app-search-page',
   imports: [FormsModule, SelectModule, ButtonModule,
-    RouterOutlet, RouterModule,
+    RouterOutlet, RouterModule, FileUploadModule,
   ],
   templateUrl: './search-page.component.html',
-  styleUrl: './search-page.component.css'
+  styleUrl: './search-page.component.css' 
 })
 export class SearchPageComponent {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, 
@@ -31,6 +30,11 @@ export class SearchPageComponent {
     this.getAllStudentsAsync();
     this.getAllGroupsAsync();
   }
+
+  LdFile: any = null; // Файл личного дела
+  LogFile: any = null; // Файл журнала регистрации договоров
+  LogDocxFile: any = null; // Файл журнала выдачи зачеток
+  uploadApiUrl: string = backend_api_url + '/import/LD';
 
   selectedStudent: Student | undefined;
   groups: Group[] = [];
@@ -71,6 +75,20 @@ export class SearchPageComponent {
     });
   }
 
+  onUploadLd(event: FileUploadEvent) {
+    this.LdFile = event.files[0];
+    // this.messageService.add({ severity: 'info', summary: 'File Uploaded', detail: '' });
+  }
+
+  onUploadLog(event: FileUploadEvent) {
+    this.LogFile = event.files[0];
+    // this.messageService.add({ severity: 'info', summary: 'File Uploaded', detail: '' });
+  }
+
+  onUploadLogDocx(event: FileUploadEvent) {
+    this.LogDocxFile = event.files[0];
+    // this.messageService.add({ severity: 'info', summary: 'File Uploaded', detail: '' });
+  }
 
   // сам поиск и фильтрация с перенаправлением
   searchSubmit(){

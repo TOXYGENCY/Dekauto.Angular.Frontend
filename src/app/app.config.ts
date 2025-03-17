@@ -13,14 +13,18 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
     provideAnimationsAsync(),
-    providePrimeNG({
+    providePrimeNG(
+      // Это - динамическа подгрузка стилей PrimeNG (чтобы не загружать все стили разом), 
+      // но она дает приоритет этим стандартным стилям, перезаписывая назначения классов - придется повышать приоритет
+      {
       theme: {
         preset: Aura,
         options: {
           darkModeSelector: '.my-app-light' // назначаем светлую тему
         }
       }
-    })
+    }
+  )
   ]
 };
 

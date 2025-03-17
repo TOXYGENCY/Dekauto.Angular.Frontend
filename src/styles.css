@@ -9,3 +9,12 @@ body {
 label {
     display: block; /* для отображения подписей сверху к полям */
 }
+
+/* Переопределяем стили: применям Tailwind-классы поверх стандартных PrimeNG */
+.docx.p-button {
+    @apply bg-blue-500! border-blue-500! hover:bg-blue-600! hover:border-blue-600!;
+}
+
+.p-fileupload-basic {
+    @apply justify-start!;
+}
