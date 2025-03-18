@@ -36,3 +36,6 @@ export const student_export_url = `${backend_api_url}/export/student`;
 export const group_export_url = `${backend_api_url}/export/group`;
 export const student_export_default_name = "Карточка студента";
 export const group_export_default_name = "Карточки студентов группы";
+
+// IMPORT
+export const import_api_url = `${backend_api_url}/import`;

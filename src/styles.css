@@ -9,6 +9,9 @@ body {
 label {
     display: block; /* для отображения подписей сверху к полям */
 }
+button {
+    @apply py-1!;
+}
 
 /* Переопределяем стили: применям Tailwind-классы поверх стандартных PrimeNG */
 .docx.p-button {
