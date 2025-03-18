@@ -13,14 +13,18 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
     provideAnimationsAsync(),
-    providePrimeNG({
+    providePrimeNG(
+      // Это - динамическа подгрузка стилей PrimeNG (чтобы не загружать все стили разом), 
+      // но она дает приоритет этим стандартным стилям, перезаписывая назначения классов - придется повышать приоритет
+      {
       theme: {
         preset: Aura,
         options: {
           darkModeSelector: '.my-app-light' // назначаем светлую тему
         }
       }
-    })
+    }
+  )
   ]
 };
 
@@ -32,3 +36,6 @@ export const student_export_url = `${backend_api_url}/export/student`;
 export const group_export_url = `${backend_api_url}/export/group`;
 export const student_export_default_name = "Карточка студента";
 export const group_export_default_name = "Карточки студентов группы";
+
+// IMPORT
+export const import_api_url = `${backend_api_url}/import`;

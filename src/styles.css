@@ -9,3 +9,19 @@ body {
 label {
     display: block; /* для отображения подписей сверху к полям */
 }
+button {
+    @apply py-1!;
+}
+.p-fileupload-file-info {
+    word-wrap: anywhere;
+    @apply text-sm;
+}
+
+/* Переопределяем стили: применям Tailwind-классы поверх стандартных PrimeNG */
+.docx.p-button {
+    @apply bg-blue-500! border-blue-500! hover:bg-blue-600! hover:border-blue-600!;
+}
+
+.p-fileupload-basic {
+    @apply justify-start!;
+}
