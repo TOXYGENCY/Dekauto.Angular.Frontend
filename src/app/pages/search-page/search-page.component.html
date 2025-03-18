@@ -1,7 +1,7 @@
 <!-- Общий контейнер для центрирования всех элементов в нем -->
 <div class="flex flex-col gap-2 w-full mt-10 justify-center items-center">
-    <div class=" max-w-1/2 place-self-center">
-        <form (ngSubmit)="searchSubmit()">
+    <div class="flex max-w-1/2 place-self-center">
+        <form class="flex flex-col p-1" (ngSubmit)="searchSubmit()">
             <!-- Подпись для поиска -->
             <label for="fullName">Поиск по ФИО студента</label>
             <!-- Поле поиска по студентам -->
@@ -36,18 +36,18 @@
                     </div>
                 </ng-template>
             </p-select>
-        </form>
         <!-- ссылка на подгрузку роутера со списком студентов под кнопкой -->
-        <a [routerLink]="['students']" class="p-button font-bold mt-5">
+        <a [routerLink]="['students']" class="p-button font-bold mt-5 place-self-center">
             [отобразить таблицу]
         </a>
+        </form>
         <!-- <p-button [style]="{'display': 'none'}" label="Импорт"></p-button> -->
 
 
         <!-- тестовая кнопка экспорта файла -->
         <!-- <p-button severity="info" label="[тест экспорта]" (click)="testExport()"></p-button>
-    <p-button severity="info" label="[тест экспорта группы]" (click)="testExportGroup()"></p-button> -->
-        <div class="flex flex-col gap-2 place-self-center justify-left items-left mt-5">
+        <p-button severity="info" label="[тест экспорта группы]" (click)="testExportGroup()"></p-button> -->
+        <div class="flex flex-col gap-2 place-self-center justify-left items-left p-1">
             <p-fileupload mode="advanced" chooseLabel="Личное дело" chooseIcon="pi pi-upload" name="ld"
                 [accept]="excelFileFormat" [cancelLabel]="cancelLabel" maxFileSize="1000000"
                 (onSelect)="onFileSelect($event, 'ld')" (onRemove)="onClearFile('ld')" (onClear)="onClearFile('ld')"
@@ -61,7 +61,7 @@
                 (onSelect)="onFileSelect($event, 'log2')" (onRemove)="onClearFile('log2')"
                 (onClear)="onClearFile('log2')" showUploadButton="false" />
 
-            <p-button styleClass="place-self-center" label="Отправить в сервис 'студенты'" (onClick)="uploadAll()" severity="info" />
+            <p-button class="place-self-center" label="Отправить в сервис 'студенты'" (onClick)="uploadAll()" severity="info" />
         </div>
     </div>
 </div>

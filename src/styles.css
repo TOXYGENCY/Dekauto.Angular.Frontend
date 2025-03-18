@@ -12,6 +12,10 @@ label {
 button {
     @apply py-1!;
 }
+.p-fileupload-file-info {
+    word-wrap: anywhere;
+    @apply text-sm;
+}
 
 /* Переопределяем стили: применям Tailwind-классы поверх стандартных PrimeNG */
 .docx.p-button {
