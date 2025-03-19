@@ -8,7 +8,16 @@
     </ng-template>
     <ng-template pTemplate="body" let-student>
         <tr class="p-selectable-row">
-            <td class="excel"><button class="p-button excel" (click)="exportStudent(student.id)"><i class="pi pi-download"></i>.xslx</button></td>
+            <td class="excel">
+                <button pButton class="excel" [disabled]="exportLoading" (click)="exportStudent(student.id)">
+                    @if (exportLoading) {
+                        <span pButtonIcon class="pi pi-spin pi-spinner"></span>
+                    } @else {
+                        <i pButtonIcon class="pi pi-download"></i>
+                        <span pButtonLabel>.xslx</span>
+                    }
+                </button>
+            </td>
             <td>{{ student.surname }} {{ student.name }} {{ student.pathronymic }}</td>
             <td>{{ getGroupName(student.groupId) }}</td>
         </tr>

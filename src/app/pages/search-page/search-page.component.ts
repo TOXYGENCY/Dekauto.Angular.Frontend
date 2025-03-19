@@ -10,23 +10,29 @@ import { ApiExportService } from '../../api-services/export/api-export.service';
 import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
-import { CachedDataService } from '../../api-services/cached-data.service';
+import { CachedDataService } from '../../services/cached-data.service';
 import { backend_api_url, import_api_url } from '../../app.config';
 import { ApiImportService } from '../../api-services/import/api-import.service';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-search-page',
   imports: [FormsModule, SelectModule, ButtonModule,
-    RouterOutlet, RouterModule, FileUploadModule,
+    RouterOutlet, RouterModule, FileUploadModule, ToastModule,
+    CommonModule
   ],
   templateUrl: './search-page.component.html',
-  styleUrl: './search-page.component.css' 
+  styleUrl: './search-page.component.css',
+  providers: [MessageService]
 })
 export class SearchPageComponent {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, 
     private apiExportService: ApiExportService, private apiStudentsService: ApiStudentsService,
     private apiGroupsService: ApiGroupsService, private cachedDataService: CachedDataService,
-    private apiImportService: ApiImportService) { }
+    private apiImportService: ApiImportService, private messageService: MessageService) { }
 
   ngOnInit() {
     this.getAllStudentsAsync();
@@ -38,6 +44,9 @@ export class SearchPageComponent {
   Log2File: any = null; // Файл журнала выдачи зачеток
   files: { ld?: File, log?: File, log2?: File } = {};
   uploadApiUrl: string = backend_api_url + '/import/LD';
+
+  tableLoading: boolean = false;
+  importLoading: boolean = false;
 
   excelFileFormat = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   cancelLabel = 'Очистить';
@@ -64,6 +73,7 @@ export class SearchPageComponent {
       },
       error: error => {
         console.error(error);
+        this.messageService.add({ severity: 'error', summary: 'Ошибка получения студентов', detail: error.message });
       }
     });
   }
@@ -77,6 +87,7 @@ export class SearchPageComponent {
       },
       error: error => {
         console.error(error);
+        this.messageService.add({ severity: 'error', summary: 'Ошибка получения групп', detail: error.message });
       }
     });
   }
@@ -92,18 +103,23 @@ export class SearchPageComponent {
   } 
 
   uploadAll() {
+    this.importLoading = true;
+    
     const formData = new FormData();
 
     if (this.files.ld) formData.append('ld', this.files.ld);
     if (this.files.log) formData.append('log', this.files.log);
     if (this.files.log2) formData.append('log2', this.files.log2);
 
-    this.apiImportService.importFileAsync2(formData).subscribe({
+    this.apiImportService.importFileAsync(formData).subscribe({
       next: response => {
         console.log(response);
+        this.importLoading = false;
       },
       error: error => {
         console.error(error);
+        this.importLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Ошибка отправки/принятия файла', detail: error.message.message });
       }
     });
   }
