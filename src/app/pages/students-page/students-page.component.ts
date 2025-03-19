@@ -1,29 +1,33 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
-import { Student } from '../../domain-models/Student'; 
+import { Student } from '../../domain-models/Student';
 import { TableModule } from 'primeng/table';
-import { CommonModule } from '@angular/common'; 
-import { CachedDataService } from '../../api-services/cached-data.service';
+import { CommonModule } from '@angular/common';
+import { CachedDataService } from '../../services/cached-data.service';
 import { Group } from '../../domain-models/Group';
 import { Observable } from 'rxjs';
 import { ApiExportService } from '../../api-services/export/api-export.service';
 import { student_export_default_name } from '../../app.config';
 import { HttpResponse } from '@angular/common/http';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-students-page',
-  imports: [TableModule, CommonModule],
+  imports: [TableModule, CommonModule, ButtonModule],
   templateUrl: './students-page.component.html',
   styleUrl: './students-page.component.css'
 })
 export class StudentsPageComponent implements OnInit, OnDestroy {
 
+  constructor(private apiStudentsService: ApiStudentsService, private cachedDataService: CachedDataService,
+    private apiExportService: ApiExportService, private messageService: MessageService) { }
+
   // Переменные подписки для того, чтобы можно было отписаться
   private studentsSub: any;
   private groupsSub: any;
 
-  constructor(private apiStudentsService: ApiStudentsService, private cachedDataService: CachedDataService,
-    private apiExportService: ApiExportService) { }
+  exportLoading: boolean = false;
 
   students: Student[] = [];
   groups: Group[] = [];
@@ -56,23 +60,31 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
   }
 
   exportStudent(studentId: string) {
+    this.exportLoading = true;
     this.apiExportService.exportStudentCardAsync(studentId).subscribe({
-        next: (response) => {
-          this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
-        },
-        error: (error) => {
-          console.error(error);
-        }
-      });
-    }
-
-  exportGroup(groupId: string) {
-    this.apiExportService.exportGroupCardsAsync(groupId).subscribe({
       next: (response) => {
+        this.exportLoading = false;
         this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
       },
       error: (error) => {
         console.error(error);
+        this.exportLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
+      }
+    });
+  }
+
+  exportGroup(groupId: string) {
+    this.exportLoading = true;
+    this.apiExportService.exportGroupCardsAsync(groupId).subscribe({
+      next: (response) => {
+        this.exportLoading = false;
+        this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
+      },
+      error: (error) => {
+        console.error(error);
+        this.exportLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файлов', detail: error });
       }
     });
   }

@@ -12,17 +12,7 @@ export class ApiImportService {
 
   private import_api_url = import_api_url;
 
-  // ldFile: any = null; // Файл личного дела
-  // logFile: any = null; // Файл журнала регистрации договоров
-  // log2File: any = null; // Файл журнала выдачи зачеток
-
-  public importFileAsync(ldFile: File, logFile: File, log2File: File): Observable<any> {
-
-    return this.http.post(`${this.import_api_url}`, { ldFile, logFile, log2File }, { responseType: 'blob', observe: 'response' });
-  }
-
-  public importFileAsync2(formData: FormData): Observable<any> {
-
+  public importFileAsync(formData: FormData): Observable<any> {
     return this.http.post(`${this.import_api_url}`, formData);
   }
 }
