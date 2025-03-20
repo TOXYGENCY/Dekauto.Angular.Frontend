@@ -16,6 +16,7 @@ import { ApiImportService } from '../../api-services/import/api-import.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
+import { DataManagerService } from '../../services/data-manager.service';
 
 
 @Component({
@@ -32,17 +33,33 @@ export class SearchPageComponent {
   constructor(private router: Router, private activatedRoute: ActivatedRoute, 
     private apiExportService: ApiExportService, private apiStudentsService: ApiStudentsService,
     private apiGroupsService: ApiGroupsService, private cachedDataService: CachedDataService,
-    private apiImportService: ApiImportService, private messageService: MessageService) { }
+    private apiImportService: ApiImportService, private messageService: MessageService, 
+    private dataManagerService: DataManagerService) { }
 
   ngOnInit() {
+    // Подписываемся на данные
+    this.dataManagerSub = this.dataManagerService.selectedGroup$.subscribe(selectedGroup => {
+      this.selectedGroup = selectedGroup;
+      console.log("Из данных - выбранная группа: ", this.students);
+    });
+
     this.getAllStudentsAsync();
     this.getAllGroupsAsync();
   }
 
-  LdFile: any = null; // Файл личного дела
-  LogFile: any = null; // Файл журнала регистрации договоров
-  Log2File: any = null; // Файл журнала выдачи зачеток
-  files: { ld?: File, log?: File, log2?: File } = {};
+  // По уничтожении компонента отписываемся
+  ngOnDestroy() {
+    if (this.dataManagerSub) {
+      this.dataManagerSub.unsubscribe();
+    }
+  }
+
+  dataManagerSub: any;
+
+  ldFile: any = null; // Файл личного дела
+  contractFile: any = null; // Файл журнала регистрации договоров
+  journalFile: any = null; // Файл журнала выдачи зачеток
+  files: { ld?: File, contract?: File, journal?: File } = {};
   uploadApiUrl: string = backend_api_url + '/import/LD';
 
   tableLoading: boolean = false;
@@ -56,6 +73,11 @@ export class SearchPageComponent {
 
   selectedGroup: Group | undefined;
   students: Student[] = [];
+
+  selectGroup(group: Group) {
+    this.selectedGroup = group;
+    this.dataManagerService.updateSelectedGroup(group);
+  }
 
   // Вставить группу студента, которого выбрали
   syncGroup() {
@@ -91,15 +113,15 @@ export class SearchPageComponent {
       }
     });
   }
-
-  onFileSelect(event: any, type: 'ld' | 'log' | 'log2') {
+  // TODO: передлать на числовые индексы
+  onFileSelect(event: any, type: 'ld' | 'contract' | 'journal') {
     if (event.files && event.files.length > 0) {
       this.files[type] = event.files[0];
     }
   }
 
-  onClearFile(type: 'ld' | 'log' | 'log2') { 
-    this.files[type] = undefined; //clearFile
+  onClearFile(type: 'ld' | 'contract' | 'journal') { 
+    this.files[type] = undefined; 
   } 
 
   uploadAll() {
@@ -108,8 +130,8 @@ export class SearchPageComponent {
     const formData = new FormData();
 
     if (this.files.ld) formData.append('ld', this.files.ld);
-    if (this.files.log) formData.append('log', this.files.log);
-    if (this.files.log2) formData.append('log2', this.files.log2);
+    if (this.files.contract) formData.append('contract', this.files.contract);
+    if (this.files.journal) formData.append('journal', this.files.journal);
 
     this.apiImportService.importFileAsync(formData).subscribe({
       next: response => {
@@ -124,24 +146,11 @@ export class SearchPageComponent {
     });
   }
 
-  onUploadLd(event: FileUploadEvent) {
-    // this.ldFile = event.files[0];
-    // this.messageService.add({ severity: 'info', summary: 'File Uploaded', detail: '' });
-  }
-
-  onUploadLog(event: FileUploadEvent) {
-    // this.logFile = event.files[0];
-    // this.messageService.add({ severity: 'info', summary: 'File Uploaded', detail: '' });
-  }
-
-  onUploadLog2(event: FileUploadEvent) {
-    // this.log2File = event.files[0];
-    // this.messageService.add({ severity: 'info', summary: 'File Uploaded', detail: '' });
-  }
-
-  // сам поиск и фильтрация с перенаправлением
+  // TODO: сам поиск и фильтрация с перенаправлением
   searchSubmit(){
     this.router.navigate(['students']);
+    this.getAllStudentsAsync();
+    this.getAllGroupsAsync();
     
   }
 }

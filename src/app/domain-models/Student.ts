@@ -4,7 +4,7 @@ export interface Student {
     userId?: string | null;
     name?: string | null;
     surname?: string | null;
-    pathronymic?: string | null;
+    patronymic?: string | null;
     gender?: boolean | null;
     birthdayDate?: string | null;  // ISO date string (YYYY-MM-DD)
     birthdayPlace?: string | null;
