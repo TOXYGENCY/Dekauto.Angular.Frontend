@@ -10,12 +10,12 @@
                 [showClear]="true" placeholder="Введите/выберите ФИО студента" class="mb-6 w-full md:w-96">
                 <ng-template #selectedItem let-student id="search">
                     <div class="flex items-center gap-2">
-                        <div>{{ student.surname }} {{ student.name }} {{ student.pathronymic }}</div>
+                        <div>{{ student.surname }} {{ student.name }} {{ student.patronymic }}</div>
                     </div>
                 </ng-template>
                 <ng-template let-student #item>
                     <div class="flex items-center gap-2">
-                        <div>{{ student.surname }} {{ student.name }} {{ student.pathronymic }}</div>
+                        <div>{{ student.surname }} {{ student.name }} {{ student.patronymic }}</div>
                     </div>
                 </ng-template>
             </p-select>
@@ -37,31 +37,26 @@
                 </ng-template>
             </p-select>
         <!-- кнопка на подгрузку роутера со списком студентов -->
-        <button [routerLink]="['students']" pButton type="button" [disabled]="tableLoading"
-            class="font-bold mt-5 place-self-center">
+        <button [routerLink]="['students']" pButton type="submit" [disabled]="tableLoading"
+            class="font-bold mt-5 place-self-center" severity="info">
             <span *ngIf="tableLoading" class="pi pi-spin pi-spinner"></span>
-            [отобразить таблицу]
+            [отобразить/обновить таблицу]
         </button>
         </form>
 
-
-        <!-- тестовая кнопка экспорта файла -->
-        <!-- <p-button severity="info" label="[тест экспорта]" (click)="testExport()"></p-button>
-        <p-button severity="info" label="[тест экспорта группы]" (click)="testExportGroup()"></p-button> -->
-
         <div class="flex flex-col gap-2 place-self-center justify-left items-left p-1">
-            <p-fileupload mode="advanced" chooseLabel="Личное дело" chooseIcon="pi pi-upload" name="ld"
+            <p-fileupload mode="advanced" chooseLabel="Личное дело" chooseIcon="pi pi-upload"
                 [accept]="excelFileFormat" [cancelLabel]="cancelLabel" maxFileSize="1000000"
                 (onSelect)="onFileSelect($event, 'ld')" (onRemove)="onClearFile('ld')" (onClear)="onClearFile('ld')"
                 showUploadButton="false" />
-            <p-fileupload mode="advanced" chooseLabel="Журнал договоров" chooseIcon="pi pi-upload" name="importLD"
+            <p-fileupload mode="advanced" chooseLabel="Журнал договоров" chooseIcon="pi pi-upload"
                 [accept]="excelFileFormat" maxFileSize="1000000" [cancelLabel]="cancelLabel"
-                (onSelect)="onFileSelect($event, 'log')" (onRemove)="onClearFile('log')" (onClear)="onClearFile('log')"
+                (onSelect)="onFileSelect($event, 'contract')" (onRemove)="onClearFile('contract')" (onClear)="onClearFile('contract')"
                 showUploadButton="false" />
             <p-fileupload [className]="" mode="advanced" chooseLabel="Журнал зачёток" [cancelLabel]="cancelLabel"
-                chooseIcon="pi pi-upload" name="importLD" [accept]="excelFileFormat" maxFileSize="1000000"
-                (onSelect)="onFileSelect($event, 'log2')" (onRemove)="onClearFile('log2')"
-                (onClear)="onClearFile('log2')" showUploadButton="false" />
+                chooseIcon="pi pi-upload" [accept]="excelFileFormat" maxFileSize="1000000"
+                (onSelect)="onFileSelect($event, 'journal')" (onRemove)="onClearFile('journal')"
+                (onClear)="onClearFile('journal')" showUploadButton="false" />
 
             <button pButton [disabled]="importLoading" class="place-self-center" (click)="uploadAll()" severity="info">
                 <span pButtonIcon *ngIf="importLoading" class="pi pi-spin pi-spinner"></span>

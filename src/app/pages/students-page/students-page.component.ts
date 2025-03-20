@@ -30,17 +30,21 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
   exportLoading: boolean = false;
 
   students: Student[] = [];
+  studentsInTable: Student[] = [];
   groups: Group[] = [];
+  groupsInTable: Group[] = [];
 
   ngOnInit() {
     // Подписываемся на кэш
     this.studentsSub = this.cachedDataService.cachedStudents$.subscribe(cache => {
       this.students = cache;
+      this.studentsInTable = this.students;
       console.log("Из кэша студентов: ", this.students);
     });
 
     this.groupsSub = this.cachedDataService.cachedGroups$.subscribe(cache => {
       this.groups = cache;
+      this.groupsInTable = this.groups;
       console.log("Из кэша групп: ", this.groups);
     });
   }

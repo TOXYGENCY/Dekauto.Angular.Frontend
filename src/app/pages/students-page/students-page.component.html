@@ -1,4 +1,4 @@
-<p-table rowHover="true" showGridlines="true" size="small" [value]="students">
+<p-table rowHover="true" showGridlines="true" size="small" [value]="studentsInTable">
     <ng-template pTemplate="header">
         <tr>
             <th>Карточка</th>
@@ -18,7 +18,7 @@
                     }
                 </button>
             </td>
-            <td>{{ student.surname }} {{ student.name }} {{ student.pathronymic }}</td>
+            <td>{{ student.surname }} {{ student.name }} {{ student.patronymic }}</td>
             <td>{{ getGroupName(student.groupId) }}</td>
         </tr>
     </ng-template>
