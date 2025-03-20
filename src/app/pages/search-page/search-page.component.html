@@ -19,6 +19,17 @@
                     </div>
                 </ng-template>
             </p-select>
+            <!-- Кнопка экспорта выбранного студента -->
+            <button *ngIf="selectedStudent" pButton class="excel place-self-center -mt-3.5" [disabled]="exportLoading" (click)="exportStudent(selectedStudent!.id!)">
+                @if (exportLoading) {
+                <span pButtonIcon class="pi pi-spin pi-spinner"></span>
+                } @else {
+                <i pButtonIcon class="pi pi-download"></i>
+                <span pButtonLabel>
+                    {{ selectedStudent.surname }} {{ selectedStudent.name }} {{ selectedStudent.patronymic }}.xslx
+                </span>
+                }
+            </button>
             <!-- Надпись для поиска -->
             <label for="group">Поиск по группе</label>
             <!-- Поле поиска по группам -->
