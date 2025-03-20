@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
@@ -30,30 +30,13 @@ import { FileSavingService } from '../../services/file-saving.service';
   styleUrl: './search-page.component.css',
   providers: [MessageService]
 })
-export class SearchPageComponent {
+export class SearchPageComponent implements OnInit {
   constructor(private router: Router, private activatedRoute: ActivatedRoute,
     private apiExportService: ApiExportService, private apiStudentsService: ApiStudentsService,
     private apiGroupsService: ApiGroupsService, private cachedDataService: CachedDataService,
     private apiImportService: ApiImportService, private messageService: MessageService,
     private dataManagerService: DataManagerService, private fileSavingService: FileSavingService) { }
 
-  ngOnInit() {
-    // Подписываемся на данные
-    this.dataManagerSub = this.dataManagerService.selectedGroup$.subscribe(selectedGroup => {
-      this.selectedGroup = selectedGroup;
-      console.log("Из данных - выбранная группа: ", this.students);
-    });
-
-    this.getAllStudentsAsync();
-    this.getAllGroupsAsync();
-  }
-
-  // По уничтожении компонента отписываемся
-  ngOnDestroy() {
-    if (this.dataManagerSub) {
-      this.dataManagerSub.unsubscribe();
-    }
-  }
 
   dataManagerSub: any;
 
@@ -76,9 +59,27 @@ export class SearchPageComponent {
   selectedGroup: Group | undefined;
   students: Student[] = [];
 
-  selectGroup(group: Group) {
-    this.selectedGroup = group;
-    this.dataManagerService.updateSelectedGroup(group);
+
+  ngOnInit() {
+    // Подписываемся на данные
+    this.dataManagerSub = this.dataManagerService.selectedGroup$.subscribe(selectedGroup => {
+      this.selectedGroup = selectedGroup;
+      console.log("Из данных - выбранная группа: ", this.selectedGroup);
+    });
+
+    this.getAllStudentsAsync();
+    this.getAllGroupsAsync();
+  }
+
+  // По уничтожении компонента отписываемся
+  ngOnDestroy() {
+    if (this.dataManagerSub) {
+      this.dataManagerSub.unsubscribe();
+    }
+  }
+
+  onGroupChange(group: Group | undefined) {
+    this.dataManagerService.updateSelectedGroup(this.selectedGroup);
   }
 
   // Вставить группу студента, которого выбрали
@@ -153,7 +154,7 @@ export class SearchPageComponent {
     this.router.navigate(['students']);
     this.getAllStudentsAsync();
     this.getAllGroupsAsync();
-
+    if (this.selectedGroup) this.dataManagerService.updateSelectedGroup(this.selectedGroup);
   }
 
   // TODO: убрать

@@ -33,9 +33,9 @@
             <!-- Надпись для поиска -->
             <label for="group">Поиск по группе</label>
             <!-- Поле поиска по группам -->
-            <p-select [options]="groups" [checkmark]="true" name="group" [(ngModel)]="selectedGroup" optionLabel="name"
-                [filter]="true" filterBy="name" [showClear]="true" placeholder="Введите/выберите группу"
-                class="w-full md:max-w-96" id="group">
+            <p-select [options]="groups" [checkmark]="true" name="group" [(ngModel)]="selectedGroup" (ngModelChange)="onGroupChange($event)" 
+                optionLabel="name" [filter]="true" filterBy="name" [showClear]="true" 
+                placeholder="Введите/выберите группу" class="w-full md:max-w-96" id="group">
                 <ng-template #selectedItem let-group>
                     <div class="flex items-center gap-2">
                         <div>{{ group.name }}</div>
