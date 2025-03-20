@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
@@ -11,12 +11,13 @@ import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
 import { CachedDataService } from '../../services/cached-data.service';
-import { backend_api_url, import_api_url } from '../../app.config';
+import { backend_api_url, import_api_url, student_export_default_name } from '../../app.config';
 import { ApiImportService } from '../../api-services/import/api-import.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { DataManagerService } from '../../services/data-manager.service';
+import { FileSavingService } from '../../services/file-saving.service';
 
 
 @Component({
@@ -29,18 +30,41 @@ import { DataManagerService } from '../../services/data-manager.service';
   styleUrl: './search-page.component.css',
   providers: [MessageService]
 })
-export class SearchPageComponent {
-  constructor(private router: Router, private activatedRoute: ActivatedRoute, 
+export class SearchPageComponent implements OnInit {
+  constructor(private router: Router, private activatedRoute: ActivatedRoute,
     private apiExportService: ApiExportService, private apiStudentsService: ApiStudentsService,
     private apiGroupsService: ApiGroupsService, private cachedDataService: CachedDataService,
-    private apiImportService: ApiImportService, private messageService: MessageService, 
-    private dataManagerService: DataManagerService) { }
+    private apiImportService: ApiImportService, private messageService: MessageService,
+    private dataManagerService: DataManagerService, private fileSavingService: FileSavingService) { }
+
+
+  dataManagerSub: any;
+
+  ldFile: any = null; // Файл личного дела
+  contractFile: any = null; // Файл журнала регистрации договоров
+  journalFile: any = null; // Файл журнала выдачи зачеток
+  files: { ld?: File, contract?: File, journal?: File } = {};
+  uploadApiUrl: string = backend_api_url + '/import/LD';
+
+  tableLoading: boolean = false;
+  importLoading: boolean = false;
+  exportLoading: boolean = false;
+
+  excelFileFormat = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  cancelLabel = 'Очистить';
+
+  selectedStudent: Student | undefined;
+  groups: Group[] = [];
+
+  selectedGroup: Group | undefined;
+  students: Student[] = [];
+
 
   ngOnInit() {
     // Подписываемся на данные
     this.dataManagerSub = this.dataManagerService.selectedGroup$.subscribe(selectedGroup => {
       this.selectedGroup = selectedGroup;
-      console.log("Из данных - выбранная группа: ", this.students);
+      console.log("Из данных - выбранная группа: ", this.selectedGroup);
     });
 
     this.getAllStudentsAsync();
@@ -54,29 +78,8 @@ export class SearchPageComponent {
     }
   }
 
-  dataManagerSub: any;
-
-  ldFile: any = null; // Файл личного дела
-  contractFile: any = null; // Файл журнала регистрации договоров
-  journalFile: any = null; // Файл журнала выдачи зачеток
-  files: { ld?: File, contract?: File, journal?: File } = {};
-  uploadApiUrl: string = backend_api_url + '/import/LD';
-
-  tableLoading: boolean = false;
-  importLoading: boolean = false;
-
-  excelFileFormat = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  cancelLabel = 'Очистить';
-
-  selectedStudent: Student | undefined;
-  groups: Group[] = [];
-
-  selectedGroup: Group | undefined;
-  students: Student[] = [];
-
-  selectGroup(group: Group) {
-    this.selectedGroup = group;
-    this.dataManagerService.updateSelectedGroup(group);
+  onGroupChange(group: Group | undefined) {
+    this.dataManagerService.updateSelectedGroup(this.selectedGroup);
   }
 
   // Вставить группу студента, которого выбрали
@@ -99,7 +102,7 @@ export class SearchPageComponent {
       }
     });
   }
-  
+
   getAllGroupsAsync() {
     this.apiGroupsService.getAllGroupsAsync().subscribe({
       next: (response: any) => {
@@ -120,13 +123,13 @@ export class SearchPageComponent {
     }
   }
 
-  onClearFile(type: 'ld' | 'contract' | 'journal') { 
-    this.files[type] = undefined; 
-  } 
+  onClearFile(type: 'ld' | 'contract' | 'journal') {
+    this.files[type] = undefined;
+  }
 
   uploadAll() {
     this.importLoading = true;
-    
+
     const formData = new FormData();
 
     if (this.files.ld) formData.append('ld', this.files.ld);
@@ -147,10 +150,26 @@ export class SearchPageComponent {
   }
 
   // TODO: сам поиск и фильтрация с перенаправлением
-  searchSubmit(){
+  searchSubmit() {
     this.router.navigate(['students']);
     this.getAllStudentsAsync();
     this.getAllGroupsAsync();
-    
+    if (this.selectedGroup) this.dataManagerService.updateSelectedGroup(this.selectedGroup);
+  }
+
+  // TODO: убрать
+  exportStudent(studentId: string) {
+    this.exportLoading = true;
+    this.apiExportService.exportStudentCardAsync(studentId).subscribe({
+      next: (response) => {
+        this.exportLoading = false;
+        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
+      },
+      error: (error) => {
+        console.error(error);
+        this.exportLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
+      }
+    });
   }
 }

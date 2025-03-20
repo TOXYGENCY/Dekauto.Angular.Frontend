@@ -1,16 +1,17 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { Student } from '../../domain-models/Student';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { CachedDataService } from '../../services/cached-data.service';
 import { Group } from '../../domain-models/Group';
-import { Observable } from 'rxjs';
 import { ApiExportService } from '../../api-services/export/api-export.service';
 import { student_export_default_name } from '../../app.config';
-import { HttpResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { FileSavingService } from '../../services/file-saving.service';
+import { DataManagerService } from '../../services/data-manager.service';
+import { GroupByOptionsWithElement } from 'rxjs';
 
 @Component({
   selector: 'app-students-page',
@@ -21,31 +22,44 @@ import { ButtonModule } from 'primeng/button';
 export class StudentsPageComponent implements OnInit, OnDestroy {
 
   constructor(private apiStudentsService: ApiStudentsService, private cachedDataService: CachedDataService,
-    private apiExportService: ApiExportService, private messageService: MessageService) { }
+    private apiExportService: ApiExportService, private messageService: MessageService,
+    private fileSavingService: FileSavingService, private dataManagerService: DataManagerService) { }
 
   // Переменные подписки для того, чтобы можно было отписаться
   private studentsSub: any;
   private groupsSub: any;
+  private selectedGroupSub: any;
 
   exportLoading: boolean = false;
 
   students: Student[] = [];
   studentsInTable: Student[] = [];
+
   groups: Group[] = [];
   groupsInTable: Group[] = [];
+  selectedGroup: Group | undefined = undefined;
 
+  // TODO: если students или studentsCache обновляется, то обновлять и studentsInTable 
   ngOnInit() {
     // Подписываемся на кэш
     this.studentsSub = this.cachedDataService.cachedStudents$.subscribe(cache => {
       this.students = cache;
-      this.studentsInTable = this.students;
       console.log("Из кэша студентов: ", this.students);
     });
 
     this.groupsSub = this.cachedDataService.cachedGroups$.subscribe(cache => {
       this.groups = cache;
-      this.groupsInTable = this.groups;
       console.log("Из кэша групп: ", this.groups);
+    });
+
+    this.selectedGroupSub = this.dataManagerService.selectedGroup$.subscribe(selectedGroup => {
+      this.selectedGroup = selectedGroup;
+      if (this.selectedGroup) {
+        this.studentsInTable = this.students.filter(s => s.groupId == this.selectedGroup?.id);
+      } else {
+        this.studentsInTable = this.students;
+      }
+      console.log("Выбранная группа: ", this.selectedGroup);
     });
   }
 
@@ -56,6 +70,9 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     }
     if (this.groupsSub) {
       this.groupsSub.unsubscribe();
+    }
+    if (this.selectedGroupSub) {
+      this.selectedGroupSub.unsubscribe();
     }
   }
 
@@ -68,7 +85,7 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     this.apiExportService.exportStudentCardAsync(studentId).subscribe({
       next: (response) => {
         this.exportLoading = false;
-        this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
+        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
       },
       error: (error) => {
         console.error(error);
@@ -83,7 +100,7 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     this.apiExportService.exportGroupCardsAsync(groupId).subscribe({
       next: (response) => {
         this.exportLoading = false;
-        this.saveFile(response.body as Blob, this.parseFileName(response, student_export_default_name));
+        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
       },
       error: (error) => {
         console.error(error);
@@ -91,38 +108,5 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
         this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файлов', detail: error });
       }
     });
-  }
-
-  saveFile(fileBlob: Blob, fileName: string) {
-    const link = document.createElement('a');
-    const url = window.URL.createObjectURL(fileBlob);
-
-    link.href = url;
-    link.download = fileName;
-    link.click();
-
-    window.URL.revokeObjectURL(url);
-    link.remove();
-  }
-
-  parseFileName(response: HttpResponse<Blob>, defaultName: string = 'file'): string {
-    const contentDisposition = response.headers.get('Content-Disposition') || '';
-
-    // Вариант 1: Обработка стандартного filename
-    const standardMatch = contentDisposition.match(/filename="(.*?)"/);
-
-    // Вариант 2: Обработка UTF-8 filename* - предпочтительнее
-    const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.*?)(;|$)/);
-
-    let fileName = defaultName;
-
-    if (utf8Match) {
-      fileName = decodeURIComponent(utf8Match[1]);
-    } else if (standardMatch) {
-      fileName = standardMatch[1];
-    }
-
-    // Удаляем кавычки если есть
-    return fileName.replace(/^"(.*)"$/, '$1');
   }
 }

@@ -14,7 +14,7 @@ export class DataManagerService {
   private selectedGroup: BehaviorSubject<Group | undefined> = new BehaviorSubject<Group | undefined>(undefined);
   public selectedGroup$ = this.selectedGroup.asObservable();
 
-  public updateSelectedGroup(group: Group) {
+  public updateSelectedGroup(group: Group | undefined) {
     console.log("Обновление выбранной группы: ", group);
     this.selectedGroup.next(group);
   }
