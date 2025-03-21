@@ -157,7 +157,6 @@ export class SearchPageComponent implements OnInit {
     if (this.selectedGroup) this.dataManagerService.updateSelectedGroup(this.selectedGroup);
   }
 
-  // TODO: убрать
   exportStudent(studentId: string) {
     this.exportLoading = true;
     this.apiExportService.exportStudentCardAsync(studentId).subscribe({
@@ -172,4 +171,20 @@ export class SearchPageComponent implements OnInit {
       }
     });
   }
+
+  exportGroup(GroupId: string) {
+    this.exportLoading = true;
+    this.apiExportService.exportGroupCardsAsync(GroupId).subscribe({
+      next: (response) => {
+        this.exportLoading = false;
+        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
+      },
+      error: (error) => {
+        console.error(error);
+        this.exportLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
+      }
+    });
+  }
+
 }
