@@ -29,7 +29,8 @@ export const appConfig: ApplicationConfig = {
 };
 
 // общая переменная пути подключения к бекенду
-export const backend_api_url = 'https://localhost:7238/api';
+// export const backend_api_url = 'https://localhost:7238/api';
+export const backend_api_url = 'http://localhost:5501/api';
 
 // EXPORT
 export const student_export_url = `${backend_api_url}/export/student`;
