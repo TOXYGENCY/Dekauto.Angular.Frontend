@@ -1,20 +1,12 @@
-# Используем официальный образ Node.js (совместимую с Angular 19)
-FROM node:22-slim
-EXPOSE 4200
-# Устанавливаем глобально Angular CLI
-RUN npm install -g @angular/cli@latest
-
-# Рабочая директория
+# Фаза сборки Angular
+FROM node:22-alpine as build
 WORKDIR /app
-
-# Копируем package.json и package-lock.json (или yarn.lock)
 COPY package*.json ./
-
-# Устанавливаем зависимости
 RUN npm install
-
-# Копируем все файлы проекта
 COPY . .
+RUN npm run build -- --configuration production
 
-# Запускаем приложение в режиме разработки
-CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "4200", "--disable-host-check"]
+# Фаза запуска (Nginx + Angular)
+FROM nginx:alpine
+COPY --from=build /app/dist/dekauto.angular.frontend /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
