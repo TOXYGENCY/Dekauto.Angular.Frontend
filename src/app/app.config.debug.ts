@@ -31,8 +31,10 @@ export const appConfig: ApplicationConfig = {
 // общая переменная пути подключения к бекенду
 // export const backend_api_url = 'https://localhost:7238/api';
 
-// Подключение внутри контейнера (относительный путь)
-export const backend_api_url = `/api`;
+// Имя хоста - доменное имя для подключения к бекенду. 
+const host = 'localhost';
+const port = ':5501'; 
+export const backend_api_url = `http://${host}${port}/api`;
 
 // EXPORT
 export const student_export_url = `${backend_api_url}/export/student`;
