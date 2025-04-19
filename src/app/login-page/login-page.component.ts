@@ -10,6 +10,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { User } from '../domain-models/User';
 import { ApiUsersService } from '../api-services/users/api-users.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthTokensAdapter } from '../domain-models/Adapters/AuthTokensAdapter';
+import { AuthService } from '../services/auth/auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -24,7 +27,7 @@ import { ApiUsersService } from '../api-services/users/api-users.service';
 })
 
 export class LoginPageComponent {
-  constructor(private apiUsersService: ApiUsersService, private router: Router) { }
+  constructor(private apiUsersService: ApiUsersService, private authService: AuthService, private router: Router) { }
 
   showErrorHint: boolean = false;
   showLoading: boolean = false;
@@ -67,35 +70,39 @@ export class LoginPageComponent {
   }
 
   Authenticate() {
-    const Credentials = {
-      login: this.login,
-      passwordString: this.passwordString
+    const loginAdapter = {
+      Login: this.login,
+      Password: this.passwordString
     };
 
-    // this.apiUsersService.AuthenticateAndToSession(Credentials).subscribe(
-    //   (response: any) => { // Сюда приходит ответ из api AuthenticateAndToSession в виде {success?: boolean, message?: string}
-    //     console.log("Authenticate() got from AuthenticateAndToSession: ", response);
-    //     if (response.success) {
-    //       // Перенаправление, все дела
-    //       this.router.navigate(this.loginRedirect);
-    //     } else {
-    //       // console.log(response.status != 0 && response.message != null);
-
-    //       this.ShowHint(true, response.status != 0 && response.message != null ? response.message : "Ошибка сервиса (код 500). Поробуйте позже.");
-    //     }
-    //     this.showLoading = false;
-    //     this.disableSubmit = false;
-    //   },
-
-    //   (error: any) => {
-    //     console.error(error.message);
-    //     console.error(error);
-    //     console.error(error.error);
-    //     this.ShowHint(true, "Ошибка сервиса (код 500). Поробуйте позже.");
-    //     this.showLoading = false;
-    //     this.disableSubmit = false;
-    //   });
-
+    this.authService.authenticateAndGetTokenAsync(loginAdapter).subscribe(
+      (response: AuthTokensAdapter) => { // Сюда приходят 2 токена из authService
+        console.log("Authenticate() got from AuthenticateAndGetTokenAsync: ", response);
+        if (response && response.accessToken) {
+          // Перенаправление, все дела
+          console.log("Вход успешен. Перенаправление...");
+          this.router.navigate(this.loginRedirect);
+        } else {
+          this.ShowHint(true, "Неверный пароль.");
+        }
+        this.showLoading = false;
+        this.disableSubmit = false;
+      },
+      (error: any) => {
+        console.error(error.message);
+        console.error(error);
+        console.error(error.error);
+        let errorHint: string;
+        // INFO: ошибки nginx и контроллеров выглядят одинаково (404 не найден адрес == 404 нет пользователя)
+        if (error.status == 404) {
+          errorHint = `Пользователь не существует.`;
+        } else {
+          errorHint = `Ошибка сервиса - что-то пошло не так.`;
+        }
+        this.ShowHint(true, errorHint + ` (Код: ${error.status})`);
+        this.showLoading = false;
+        this.disableSubmit = false;
+      });
   }
 
   // Register() {
