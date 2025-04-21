@@ -66,4 +66,16 @@ export class AuthService {
   public getToken(): string | null {
     return this.currentUserValue?.accessToken || null;
   }
+
+  getRole(): string {
+    return this.currentUserValue?.role || '';
+  }
+
+  userHasRole(role: string): boolean {
+    return this.getRole().includes(role);
+  }
+
+  userHasAnyRole(roles: string[]): boolean {
+    return roles.some(role => this.userHasRole(role));
+  }
 }

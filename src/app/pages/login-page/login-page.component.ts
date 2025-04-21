@@ -8,11 +8,11 @@ import { CommonModule } from '@angular/common'
 import { Router, RouterOutlet } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { User } from '../domain-models/User';
-import { ApiUsersService } from '../api-services/users/api-users.service';
+import { User } from '../../domain-models/User';
+import { ApiUsersService } from '../../api-services/users/api-users.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthTokensAdapter } from '../domain-models/Adapters/AuthTokensAdapter';
-import { AuthService } from '../services/auth/auth.service';
+import { AuthTokensAdapter } from '../../domain-models/Adapters/AuthTokensAdapter';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-login-page',

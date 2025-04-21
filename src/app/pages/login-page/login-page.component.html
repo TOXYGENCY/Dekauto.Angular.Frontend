@@ -18,7 +18,7 @@
             placeholder="Введите пароль" pInputText class="w-full mb-4" required>
 
         <div *ngIf="showErrorHint" class="text-red-500 text-sm font-medium mb-4">{{ hintText }}</div>
-        <button [disabled]="disableSubmit" type="submit" pButton pRipple class="w-full">
+        <button [disabled]="disableSubmit" type="submit" pButton class="w-full">
             <span *ngIf="showLoading" class="pi pi-spin pi-spinner"></span>
             <span class="pl-2 text-center">{{ showLoading ? "Отправляем..." : submitLabel }}</span>
         </button>
