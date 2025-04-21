@@ -94,7 +94,7 @@ export class LoginPageComponent {
         console.error(error.error);
         let errorHint: string;
         // INFO: ошибки nginx и контроллеров выглядят одинаково (404 не найден адрес == 404 нет пользователя)
-        if (error.status == 404) {
+        if (error.status == 404 && error.ok == true) {
           errorHint = `Пользователь не существует.`;
         } else {
           errorHint = `Ошибка сервиса - что-то пошло не так.`;

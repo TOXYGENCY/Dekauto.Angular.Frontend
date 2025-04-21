@@ -36,6 +36,9 @@ const host = 'localhost';
 const port = ':5501'; 
 export const backend_api_url = `http://${host}${port}/api`;
 
+// AUTH
+export const auth_api_url = `http://${host}:5507/api/auth`;
+
 // EXPORT
 export const student_export_url = `${backend_api_url}/export/student`;
 export const group_export_url = `${backend_api_url}/export/group`;
@@ -44,3 +47,5 @@ export const group_export_default_name = "Карточки студентов г
 
 // IMPORT
 export const import_api_url = `${backend_api_url}/import`;
+
+console.log("development config loaded");
