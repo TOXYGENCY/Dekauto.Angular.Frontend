@@ -12,23 +12,27 @@ import { User } from '../../domain-models/User';
 export class AuthService {
   // BehaviorSubject для хранения текущего состояния пользователя
   // Хранит либо объект с данными пользователя и токеном, либо null
-  private currentUser: BehaviorSubject<any>;
+  private currentCredentials: BehaviorSubject<any>;
 
   // Observable для подписки на изменения состояния аутентификации
-  public currentUser$: Observable<any>;
+  public currentCredentials$: Observable<any>;
 
   constructor(private http: HttpClient, private apiUsersService: ApiUsersService) {
     // Инициализация BehaviorSubject из localStorage
-    this.currentUser = new BehaviorSubject<any>(
+    this.currentCredentials = new BehaviorSubject<any>(
       JSON.parse(localStorage.getItem('currentUser') || "{}")
     );
-    this.currentUser$ = this.currentUser.asObservable();
+    this.currentCredentials$ = this.currentCredentials.asObservable();
     
   }
 
+  public get currentCredentialsValue() {
+    return this.currentCredentials.value;
+  }
+
   // для получения текущего значения вне подписки
-  public get currentUserValue() {
-    return this.currentUser.value;
+  public get currentUser() {
+    return this.currentCredentialsValue.user;
   }
 
   // Метод для входа пользователя
@@ -47,28 +51,28 @@ export class AuthService {
 
   private saveAuthData(tokens: AuthTokensAdapter): void {
     localStorage.setItem('currentUser', JSON.stringify(tokens));
-    this.currentUser.next(tokens);
+    this.currentCredentials.next(tokens);
   }
 
   //  Метод для выхода пользователя
   //  Очищает хранилище и обновляет состояние
   public logout() {
     localStorage.removeItem('currentUser');
-    this.currentUser.next(null);
+    this.currentCredentials.next(null);
   }
 
   //  Проверка статуса аутентификации
   public isAuthenticated(): boolean {
-    return this.currentUserValue?.accessToken != null;
+    return this.currentCredentialsValue?.accessToken != null;
   }
 
   // Получение JWT токена текущего пользователя
   public getToken(): string | null {
-    return this.currentUserValue?.accessToken || null;
+    return this.currentCredentialsValue?.accessToken || null;
   }
 
   getRole(): string {
-    return this.currentUserValue?.role || '';
+    return this.currentUser?.roleName || '';
   }
 
   userHasRole(role: string): boolean {
