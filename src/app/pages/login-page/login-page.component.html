@@ -1,0 +1,27 @@
+<form (ngSubmit)="Submit()"
+    class="mt-8 max-w-[29rem] bg-surface-0 p-6 shadow-2xl rounded-border w-full lg:w-6/12 mx-auto justify-center items-center">
+    <div class="text-center mb-8">
+        <!-- <img src="assets/icons/favicons/android-chrome-192x192.png" alt="#" height="50" class="mb-4"> -->
+        <div class="text-surface-900 text-3xl font-medium mb-4">Вход в<br /><span>Dekauto.</span>
+        </div>
+    </div>
+
+    <div>
+        <label for="login" class="block text-surface-900 font-medium mb-2">Логин<span
+                class="text-red-500 text-sm">*</span></label>
+        <input id="login" name="login" type="login" [(ngModel)]="login" (input)="onInputChange()" type="text"
+            placeholder="Введите логин" pInputText class="w-full mb-4" required>
+
+        <label for="password" class="block text-surface-900 font-medium mb-2">Пароль<span
+                class="text-red-500 text-sm">*</span></label>
+        <input id="password" name="password" [(ngModel)]="passwordString" (input)="onInputChange()" type="password"
+            placeholder="Введите пароль" pInputText class="w-full mb-4" required>
+
+        <div *ngIf="showErrorHint" class="text-red-500 text-sm font-medium mb-4">{{ hintText }}</div>
+        <button [disabled]="disableSubmit" type="submit" pButton class="w-full">
+            <span *ngIf="showLoading" class="pi pi-spin pi-spinner"></span>
+            <span class="pl-2 text-center">{{ showLoading ? "Отправляем..." : submitLabel }}</span>
+        </button>
+    </div>
+</form>
+<router-outlet></router-outlet>
