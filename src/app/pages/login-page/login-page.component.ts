@@ -11,7 +11,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { User } from '../../domain-models/User';
 import { ApiUsersService } from '../../api-services/users/api-users.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthTokensAdapter } from '../../domain-models/Adapters/AuthTokensAdapter';
+import { CurrentCredentials } from '../../domain-models/Adapters/CurrentCredentials';
 import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
@@ -52,6 +52,7 @@ export class LoginPageComponent {
     this.showErrorHint = state;
   }
 
+
   onInputChange() {
     this.ShowHint(false);
   }
@@ -76,7 +77,7 @@ export class LoginPageComponent {
     };
 
     this.authService.authenticateAndGetTokenAsync(loginAdapter).subscribe(
-      (response: AuthTokensAdapter) => { // Сюда приходят 2 токена из authService
+      (response: CurrentCredentials) => { // Сюда приходят 2 токена из authService
         console.log("Authenticate() got from AuthenticateAndGetTokenAsync: ", response);
         if (response && response.accessToken) {
           // Перенаправление, все дела

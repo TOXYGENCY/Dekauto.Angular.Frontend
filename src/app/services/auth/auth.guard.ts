@@ -11,10 +11,6 @@ export const authGuard: CanActivateFn = (route, state) => {
     if (requiredRoles && authService.userHasAnyRole(requiredRoles)) {
       return true;
     } else {
-      // console.error(requiredRoles && authService.userHasAnyRole(requiredRoles));
-      // console.error(requiredRoles);
-      // console.error(authService.userHasAnyRole(requiredRoles));
-      // console.warn(authService.getRole());
       router.navigate(['/access-denied']);
       return false;
     }

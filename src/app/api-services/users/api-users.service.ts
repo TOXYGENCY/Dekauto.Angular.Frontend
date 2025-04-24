@@ -14,11 +14,19 @@ export class ApiUsersService {
   
   // вернет Jwt-токены
   public AuthenticateAndGetTokenAsync(loginAdapter: LoginAdapter): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, loginAdapter);
+    return this.http.post(`${this.apiUrl}`, loginAdapter, {
+      withCredentials: true 
+    });
   }
 
   public ValidateTokenAsync(token: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/validate`, { headers: { Authorization: `Bearer ${token}` } });
+  }
+
+  public RefreshTokens(userId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${userId}/refresh`, {}, {
+      withCredentials: true
+    });
   }
 
 }

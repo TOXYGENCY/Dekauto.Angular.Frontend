@@ -1,9 +1,9 @@
 import { User } from "../User";
 
-export interface AuthTokensAdapter {
+// AccessTokenDto в бекенде
+export interface CurrentCredentials {
     accessToken: string;
-    refreshToken: string;
-    user: User;
     accessTokenExpiry?: Date | null;
+    user: User;
 }
 

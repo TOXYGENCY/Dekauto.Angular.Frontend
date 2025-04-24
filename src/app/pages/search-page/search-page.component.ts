@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnChanges, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
@@ -11,13 +11,14 @@ import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
 import { CachedDataService } from '../../services/cached-data.service';
-import { backend_api_url, import_api_url, student_export_default_name } from '../../app.config';
 import { ApiImportService } from '../../api-services/import/api-import.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { DataManagerService } from '../../services/data-manager.service';
 import { FileSavingService } from '../../services/file-saving.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { environment } from '../../../environments/environment.development';
 
 
 @Component({
@@ -35,7 +36,8 @@ export class SearchPageComponent implements OnInit {
     private apiExportService: ApiExportService, private apiStudentsService: ApiStudentsService,
     private apiGroupsService: ApiGroupsService, private cachedDataService: CachedDataService,
     private apiImportService: ApiImportService, private messageService: MessageService,
-    private dataManagerService: DataManagerService, private fileSavingService: FileSavingService) { }
+    private dataManagerService: DataManagerService, private fileSavingService: FileSavingService,
+    private userAuthService: AuthService) { }
 
 
   dataManagerSub: any;
@@ -44,7 +46,7 @@ export class SearchPageComponent implements OnInit {
   contractFile: any = null; // Файл журнала регистрации договоров
   journalFile: any = null; // Файл журнала выдачи зачеток
   files: { ld?: File, contract?: File, journal?: File } = {};
-  uploadApiUrl: string = backend_api_url + '/import/LD';
+  uploadApiUrl: string = environment.api.baseUrl + '/import/LD';
 
   tableLoading: boolean = false;
   importLoading: boolean = false;
@@ -162,7 +164,7 @@ export class SearchPageComponent implements OnInit {
     this.apiExportService.exportStudentCardAsync(studentId).subscribe({
       next: (response) => {
         this.exportLoading = false;
-        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
+        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, environment.export.student.defaultName));
       },
       error: (error) => {
         console.error(error);
@@ -177,7 +179,7 @@ export class SearchPageComponent implements OnInit {
     this.apiExportService.exportGroupCardsAsync(GroupId).subscribe({
       next: (response) => {
         this.exportLoading = false;
-        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
+        this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, environment.export.group.defaultName));
       },
       error: (error) => {
         console.error(error);

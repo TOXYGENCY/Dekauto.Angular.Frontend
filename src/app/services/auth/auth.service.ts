@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, tap } from 'rxjs';
 import { LoginAdapter } from '../../domain-models/Adapters/LoginAdapter';
-import { AuthTokensAdapter } from '../../domain-models/Adapters/AuthTokensAdapter';
+import { CurrentCredentials } from '../../domain-models/Adapters/CurrentCredentials';
 import { ApiUsersService } from '../../api-services/users/api-users.service';
 import { User } from '../../domain-models/User';
 
@@ -16,11 +16,12 @@ export class AuthService {
 
   // Observable для подписки на изменения состояния аутентификации
   public currentCredentials$: Observable<any>;
+  apiUrl: any;
 
   constructor(private http: HttpClient, private apiUsersService: ApiUsersService) {
     // Инициализация BehaviorSubject из localStorage
     this.currentCredentials = new BehaviorSubject<any>(
-      JSON.parse(localStorage.getItem('currentUser') || "{}")
+      JSON.parse(localStorage.getItem('currentCredentials') || "{}")
     );
     this.currentCredentials$ = this.currentCredentials.asObservable();
     
@@ -38,9 +39,9 @@ export class AuthService {
   // Метод для входа пользователя
   public authenticateAndGetTokenAsync(loginAdapter: LoginAdapter): Observable<any> {
     return this.apiUsersService.AuthenticateAndGetTokenAsync(loginAdapter).pipe(
-      tap((response: AuthTokensAdapter) => {
+      tap((response: CurrentCredentials) => {
         if (response?.accessToken) {
-          this.saveAuthData(response);
+          this.storeCredentials(response);
         }
       }),
       catchError(error => {
@@ -49,16 +50,22 @@ export class AuthService {
     );
   }
 
-  private saveAuthData(tokens: AuthTokensAdapter): void {
-    localStorage.setItem('currentUser', JSON.stringify(tokens));
-    this.currentCredentials.next(tokens);
+  private storeCredentials(credentials: CurrentCredentials): void {
+    localStorage.setItem('currentCredentials', JSON.stringify(credentials));
+    this.currentCredentials.next(credentials);
   }
 
   //  Метод для выхода пользователя
   //  Очищает хранилище и обновляет состояние
   public logout() {
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentCredentials');
     this.currentCredentials.next(null);
+  }
+
+  public checkAuth() {
+    if (!this.isAuthenticated()) {
+      this.logout();
+    }
   }
 
   //  Проверка статуса аутентификации
@@ -67,8 +74,15 @@ export class AuthService {
   }
 
   // Получение JWT токена текущего пользователя
-  public getToken(): string | null {
+  public getAccessToken(): string | null {
     return this.currentCredentialsValue?.accessToken || null;
+  }
+
+  public refreshTokens(): Observable<any> {
+    // Cookie с refresh token отправится автоматически
+    return this.apiUsersService.RefreshTokens(this.currentUser.id).pipe(
+      tap(response => this.storeCredentials(response))
+    );
   }
 
   getRole(): string {
