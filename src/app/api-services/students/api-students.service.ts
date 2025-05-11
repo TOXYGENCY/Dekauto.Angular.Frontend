@@ -13,7 +13,7 @@ export class ApiStudentsService {
     private apiUrl = backend_api_url;
 
     public getAllStudentsAsync(): Observable<any> {
-      return this.http.get(`${this.apiUrl}`);
+      return this.http.get(`${this.apiUrl}/students`);
     }
 
     

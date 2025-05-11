@@ -63,7 +63,7 @@
         <button [routerLink]="['students']" pButton type="submit" [disabled]="tableLoading"
             class="font-bold mt-5 place-self-center" severity="info">
             <span *ngIf="tableLoading" class="pi pi-spin pi-spinner"></span>
-            [отобразить/обновить таблицу]
+            Показать таблицу
         </button>
         </form>
 
@@ -83,7 +83,7 @@
 
             <button pButton [disabled]="importLoading" class="place-self-center" (click)="uploadAll()" severity="info">
                 <span pButtonIcon *ngIf="importLoading" class="pi pi-spin pi-spinner"></span>
-                <span pButtonLabel>[отправить в сервис 'студенты']</span>
+                <span pButtonLabel>Импортировать документы</span>
             </button>
         </div>
     </div>

@@ -27,7 +27,8 @@ import { AuthService } from '../../services/auth/auth.service';
 })
 
 export class LoginPageComponent {
-  constructor(private apiUsersService: ApiUsersService, private authService: AuthService, private router: Router) { }
+  constructor(private apiUsersService: ApiUsersService, 
+    private authService: AuthService, private router: Router) { }
 
   showErrorHint: boolean = false;
   showLoading: boolean = false;
