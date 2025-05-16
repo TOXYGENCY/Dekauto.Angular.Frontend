@@ -16,15 +16,20 @@ export class AuthService {
 
   // Observable для подписки на изменения состояния аутентификации
   public currentCredentials$: Observable<any>;
-  apiUrl: any;
 
   constructor(private http: HttpClient, private apiUsersService: ApiUsersService) {
-    // Инициализация BehaviorSubject из localStorage
-    this.currentCredentials = new BehaviorSubject<any>(
-      JSON.parse(localStorage.getItem('currentCredentials') || "{}")
-    );
-    this.currentCredentials$ = this.currentCredentials.asObservable();
-    
+    let creds = localStorage.getItem('currentCredentials');
+    if (creds) {
+      // Инициализация BehaviorSubject из localStorage
+      this.currentCredentials = new BehaviorSubject<any>(
+        JSON.parse(localStorage.getItem('currentCredentials')!)
+      );
+      this.currentCredentials$ = this.currentCredentials.asObservable();
+    } else {
+      // Инициализация пустого BehaviorSubject
+      this.currentCredentials = new BehaviorSubject<any>(null);
+      this.currentCredentials$ = this.currentCredentials.asObservable();
+    }
   }
 
   public get currentCredentialsValue() {
@@ -79,10 +84,15 @@ export class AuthService {
   }
 
   public refreshTokens(): Observable<any> {
-    // Cookie с refresh token отправится автоматически
-    return this.apiUsersService.RefreshTokens(this.currentUser.id).pipe(
-      tap(response => this.storeCredentials(response))
-    );
+    if (this.isAuthenticated()) {
+      // Cookie с refresh token отправится автоматически
+      return this.apiUsersService.RefreshTokens(this.currentUser.id).pipe(
+        tap(response => this.storeCredentials(response))
+      );
+    } else {
+      this.logout();
+      return new Observable(observer => observer.complete());
+    }
   }
 
   getRole(): string {
