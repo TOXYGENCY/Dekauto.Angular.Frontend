@@ -1,0 +1,7 @@
+<p-menubar name="header" [model]="items" styleClass="mb-4">
+    <ng-template pTemplate="item" let-item>
+        <a class="p-menuitem-link" [routerLink]="item.routerLink">
+            <span>{{ item.label }}</span>
+        </a>
+    </ng-template>
+</p-menubar>

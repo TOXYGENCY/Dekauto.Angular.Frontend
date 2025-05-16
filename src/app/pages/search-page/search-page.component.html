@@ -1,3 +1,5 @@
+<app-header></app-header>
+
 <!-- Общий контейнер для центрирования всех элементов в нем -->
 <div class="flex flex-col gap-2 w-full mt-10 justify-center items-center">
     <div class="flex max-w-1/2 place-self-center">
@@ -20,7 +22,8 @@
                 </ng-template>
             </p-select>
             <!-- Кнопка экспорта выбранного студента -->
-            <button *ngIf="selectedStudent" pButton class="excel place-self-center -mt-3.5" [disabled]="exportLoading" (click)="exportStudent(selectedStudent!.id!)">
+            <button *ngIf="selectedStudent" pButton class="excel place-self-center -mt-3.5" [disabled]="exportLoading" 
+            (click)="exportStudent(selectedStudent!.id!)">
                 @if (exportLoading) {
                 <span pButtonIcon class="pi pi-spin pi-spinner"></span>
                 } @else {
@@ -48,22 +51,23 @@
                 </ng-template>
             </p-select>
             <!-- Кнопка экспорта выбранного студента -->
-            <button *ngIf="selectedGroup" pButton class="excel place-self-center mt-3" [disabled]="exportLoading"
+            <button *ngIf="selectedGroup" pButton class="excel place-self-center mt-3" 
+            [disabled]="exportLoading || selectedGroup.students?.length == 0"
                 (click)="exportGroup(selectedGroup!.id!)">
                 @if (exportLoading) {
                 <span pButtonIcon class="pi pi-spin pi-spinner"></span>
                 } @else {
-                <i pButtonIcon class="pi pi-download"></i>
+                <i *ngIf="selectedGroup.students!.length > 0" pButtonIcon class="pi pi-download"></i>
                 <span pButtonLabel>
-                    {{ selectedGroup.name }}.xslx
+                    {{ selectedGroup.students?.length == 0 ? "Группа пуста" : selectedGroup.name + ".xslx" }}
                 </span>
                 }
             </button>
         <!-- кнопка на подгрузку роутера со списком студентов -->
-        <button [routerLink]="['students']" pButton type="submit" [disabled]="tableLoading"
+        <button pButton type="submit" [disabled]="tableLoading"
             class="font-bold mt-5 place-self-center" severity="info">
             <span *ngIf="tableLoading" class="pi pi-spin pi-spinner"></span>
-            Показать таблицу
+            Обновить таблицу
         </button>
         </form>
 

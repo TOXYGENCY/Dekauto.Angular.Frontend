@@ -45,6 +45,7 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     this.studentsSub = this.cachedDataService.cachedStudents$.subscribe(cache => {
       this.students = cache;
       console.log("Из кэша студентов: ", this.students);
+      this.updateStudentsInTable();
     });
 
     this.groupsSub = this.cachedDataService.cachedGroups$.subscribe(cache => {
@@ -54,15 +55,12 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
 
     this.selectedGroupSub = this.dataManagerService.selectedGroup$.subscribe(selectedGroup => {
       this.selectedGroup = selectedGroup;
-      if (this.selectedGroup) {
-        this.studentsInTable = this.students.filter(s => s.groupId == this.selectedGroup?.id);
-      } else {
-        this.studentsInTable = this.students;
-      }
       console.log("Выбранная группа: ", this.selectedGroup);
+      this.updateStudentsInTable();
     });
   }
 
+  
   // По уничтожении компонента отписываемся
   ngOnDestroy() {
     if (this.studentsSub) {
@@ -74,6 +72,21 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     if (this.selectedGroupSub) {
       this.selectedGroupSub.unsubscribe();
     }
+  }
+
+  private updateStudentsInTable(): void {
+    if (!this.students) {
+      this.studentsInTable = [];
+      return;
+    }
+
+    if (this.selectedGroup) {
+      this.studentsInTable = this.students.filter(s => s.groupId == this.selectedGroup?.id);
+    } else {
+      this.studentsInTable = this.students;
+    }
+
+    console.log("Обновлен список студентов в таблице");
   }
 
   getGroupName(groupId: string): string {

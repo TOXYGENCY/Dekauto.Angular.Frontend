@@ -26,9 +26,9 @@ import { AuthService } from '../../services/auth/auth.service';
   styleUrl: './login-page.component.css'
 })
 
-export class LoginPageComponent {
+export class LoginPageComponent implements OnInit {
   constructor(private apiUsersService: ApiUsersService, 
-    private authService: AuthService, private router: Router) { }
+    private authService: AuthService, private router: Router)  { }
 
   showErrorHint: boolean = false;
   showLoading: boolean = false;
@@ -42,6 +42,10 @@ export class LoginPageComponent {
     Validators.required,
     Validators.email
   ]);
+
+  ngOnInit(): void {
+    this.authService.logout();
+  }
 
   ShowHint(state: boolean, text: string = "") {
     if (state == true && text == '') {

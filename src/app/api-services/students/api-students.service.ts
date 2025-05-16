@@ -15,6 +15,4 @@ export class ApiStudentsService {
     public getAllStudentsAsync(): Observable<any> {
       return this.http.get(`${this.apiUrl}/students`);
     }
-
-    
 }

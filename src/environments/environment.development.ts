@@ -1,5 +1,5 @@
 export const environment = {
-    production: false,
+    production: true,
     // Базовые настройки API
     api: {
         baseUrl: 'http://localhost:5501/api',

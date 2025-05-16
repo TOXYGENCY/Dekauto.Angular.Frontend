@@ -19,13 +19,15 @@ import { DataManagerService } from '../../services/data-manager.service';
 import { FileSavingService } from '../../services/file-saving.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment.development';
+import { HeaderComponent } from '../header/header.component';
+import { HttpResponse } from '@angular/common/http';
 
 
 @Component({
   selector: 'app-search-page',
   imports: [FormsModule, SelectModule, ButtonModule,
     RouterOutlet, RouterModule, FileUploadModule, ToastModule,
-    CommonModule
+    CommonModule, HeaderComponent
   ],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.css',
@@ -69,8 +71,9 @@ export class SearchPageComponent implements OnInit {
       console.log("Из данных - выбранная группа: ", this.selectedGroup);
     });
 
-    this.getAllStudentsAsync();
-    this.getAllGroupsAsync();
+    // this.getAllStudentsAsync();
+    // this.getAllGroupsAsync();
+    this.getAllGroupsWithStudentsAsync();
   }
 
   // По уничтожении компонента отписываемся
@@ -91,33 +94,69 @@ export class SearchPageComponent implements OnInit {
     }
   }
 
-  getAllStudentsAsync() {
+  searchSubmit() {
+    // this.router.navigate(['students']);
+    this.getAllGroupsWithStudentsAsync();
+    if (this.selectedGroup) this.dataManagerService.updateSelectedGroup(this.selectedGroup);
+  }
+
+  onStudentsRecieved(recieved: Student[]) {
+    this.students = recieved;
+    // Сохраняем в кэш
+    this.cachedDataService.updateStudentsCache(this.students);
+  }
+
+  onGroupsRecieved(recieved: Group[]) {
+    this.groups = recieved;
+    // Сохраняем в кэш
+    this.groups.forEach(group => {
+      group.students = this.students.filter(student => student.groupId == group.id);
+    });
+    this.cachedDataService.updateGroupsCache(this.groups);
+  }
+
+  /*getAllStudentsAsync() {
     this.apiStudentsService.getAllStudentsAsync().subscribe({
       next: response => {
-        this.students = response;
-        // Сохраняем в кэш
-        this.cachedDataService.updateStudentsCache(this.students);
+        this.onStudentsRecieved(response);
       },
       error: error => {
         console.error(error);
         this.messageService.add({ severity: 'error', summary: 'Ошибка получения студентов', detail: error.message });
       }
     });
-  }
+  }*/
 
-  getAllGroupsAsync() {
+  async getAllGroupsWithStudentsAsync() {
+    // Начинаем получать группы
     this.apiGroupsService.getAllGroupsAsync().subscribe({
-      next: (response: any) => {
-        this.groups = response;
-        // Сохраняем в кэш
-        this.cachedDataService.updateGroupsCache(this.groups);
+      next: (response) => {
+        // Получили группы, получаем студентов
+          this.apiStudentsService.getAllStudentsAsync().subscribe({
+            next: (response) => {
+              // Записываем студентов в кэш
+              this.onStudentsRecieved(response);
+            },
+            complete: () => {
+              // Заполняем каждую группу студетами и пишем в кеш
+              this.onGroupsRecieved(response);
+            },
+            error: (error) => {
+              console.error(error);
+              this.messageService.add({ severity: 'error', 
+                summary: 'Ошибка получения студентов', detail: error.message });
+            }
+          });
+        
       },
-      error: error => {
+      error: (error) => {
         console.error(error);
-        this.messageService.add({ severity: 'error', summary: 'Ошибка получения групп', detail: error.message });
+        this.messageService.add({ severity: 'error', 
+          summary: 'Ошибка получения групп', detail: error.message });
       }
     });
   }
+
   // TODO: передлать на числовые индексы
   onFileSelect(event: any, type: 'ld' | 'contract' | 'journal') {
     if (event.files && event.files.length > 0) {
@@ -151,13 +190,6 @@ export class SearchPageComponent implements OnInit {
     });
   }
 
-  // TODO: сам поиск и фильтрация с перенаправлением
-  searchSubmit() {
-    this.router.navigate(['students']);
-    this.getAllStudentsAsync();
-    this.getAllGroupsAsync();
-    if (this.selectedGroup) this.dataManagerService.updateSelectedGroup(this.selectedGroup);
-  }
 
   exportStudent(studentId: string) {
     this.exportLoading = true;
