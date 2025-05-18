@@ -22,7 +22,7 @@
                 </ng-template>
             </p-select>
             <!-- Кнопка экспорта выбранного студента -->
-            <button *ngIf="selectedStudent" pButton class="excel place-self-center -mt-3.5" [disabled]="exportLoading" 
+            <button *ngIf="selectedStudent" pButton class="excel place-self-center -mt-3.5" 
             (click)="exportStudent(selectedStudent!.id!)">
                 @if (exportLoading) {
                 <span pButtonIcon class="pi pi-spin pi-spinner"></span>

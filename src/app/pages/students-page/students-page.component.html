@@ -9,7 +9,7 @@
     <ng-template pTemplate="body" let-student>
         <tr class="p-selectable-row">
             <td class="excel">
-                <button pButton class="excel" [disabled]="exportLoading" (click)="exportStudent(student.id)">
+                <button pButton class="excel" (click)="exportStudent(student.id, $event)">
                     @if (exportLoading) {
                         <span pButtonIcon class="pi pi-spin pi-spinner"></span>
                     } @else {

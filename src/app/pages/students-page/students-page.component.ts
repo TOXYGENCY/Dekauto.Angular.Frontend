@@ -93,33 +93,59 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     return this.groups.find(g => g.id == groupId)?.name || '-';
   }
 
-  exportStudent(studentId: string) {
-    this.exportLoading = true;
+  exportStudent(studentId: string, event: any) {
+    let btn = event.target.closest('button');
+    btn.disabled = true;
+    // this.exportLoading = true;
     this.apiExportService.exportStudentCardAsync(studentId).subscribe({
       next: (response) => {
         this.exportLoading = false;
+        btn.disabled = false;
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файлов");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
+        btn.disabled = false;
       }
     });
   }
 
-  exportGroup(groupId: string) {
+  exportGroup(groupId: string, event: any) {
+    let btn = event.target.closest('button');
+    btn.disabled = true;
+
     this.exportLoading = true;
     this.apiExportService.exportGroupCardsAsync(groupId).subscribe({
       next: (response) => {
         this.exportLoading = false;
+        btn.disabled = false;
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файлов");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файлов', detail: error });
+        btn.disabled = false;
       }
     });
+  }
+
+  showError(error: any, summary: string, detail?: string) {
+    summary = summary ? summary : "Ошибка";
+
+    if (error) {
+      console.error(error.status, error.error, error.message, error);
+    } else {
+      console.error(summary, detail);
+    }
+
+    if (!detail) {
+      if (typeof error.error == 'string') {
+        detail = error.error;
+      } else {
+        detail = "Возникла непредвиденная ошибка. Повторите попытку или свяжитесь с администратором";
+      }
+    }
+    this.messageService.add({ severity: 'error', summary: summary, detail: detail, life: 7000 });
   }
 }
