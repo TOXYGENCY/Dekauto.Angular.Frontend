@@ -27,6 +27,26 @@ button {
     @apply justify-start!;
 }
 
+.p-fileupload-file:last-child {
+    @apply py-0;
+}
+
+.p-fileupload-header {
+    @apply justify-between pb-1!;
+}
+
+.p-fileupload-content {
+    @apply py-2 min-h-8! border-dashed! border-primary-200!;
+}
+
+.p-fileupload-file-name {
+    @apply max-w-60 text-nowrap overflow-x-auto;
+}
+
+.p-fileupload-file-size {
+    @apply italic opacity-60;
+}
+
 p-menubar[name="header"] p-menubarsub {
     width: 100%;
     display: flex;

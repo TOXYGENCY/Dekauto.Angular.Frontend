@@ -2,7 +2,7 @@
 
 <!-- Общий контейнер для центрирования всех элементов в нем -->
 <div class="flex flex-col gap-2 w-full mt-10 justify-center items-center">
-    <div class="flex max-w-1/2 place-self-center">
+    <div class="flex w-2/3 place-self-center justify-center">
         <form class="flex flex-col p-1" (ngSubmit)="searchSubmit()">
             <!-- Подпись для поиска -->
             <label for="fullName">Поиск по ФИО студента</label>
@@ -71,7 +71,7 @@
         </button>
         </form>
 
-        <div class="flex flex-col gap-2 place-self-center justify-left items-left p-1">
+        <div class="flex flex-col max-w-full gap-2 place-self-center justify-left items-left p-1">
             <p-fileupload mode="advanced" chooseLabel="Личное дело" chooseIcon="pi pi-upload"
                 [accept]="excelFileFormat" [cancelLabel]="cancelLabel" maxFileSize="1000000"
                 (onSelect)="onFileSelect($event, 'ld')" (onRemove)="onClearFile('ld')" (onClear)="onClearFile('ld')"
