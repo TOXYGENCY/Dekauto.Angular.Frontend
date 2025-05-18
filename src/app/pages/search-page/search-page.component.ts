@@ -128,6 +128,7 @@ export class SearchPageComponent implements OnInit {
   }*/
 
   async getAllGroupsWithStudentsAsync() {
+    this.tableLoading = true;
     // Начинаем получать группы
     this.apiGroupsService.getAllGroupsAsync().subscribe({
       next: (response) => {
@@ -140,15 +141,16 @@ export class SearchPageComponent implements OnInit {
           complete: () => {
             // Заполняем каждую группу студетами и пишем в кеш
             this.onGroupsRecieved(response);
+            this.tableLoading = false;
           },
           error: (error) => {
             this.showError(error, "Студенты: Ошибка получения студентов");
           }
         });
-
       },
       error: (error) => {
         this.showError(error, "Группы: Ошибка получения групп");
+        this.tableLoading = false;
       }
     });
   }

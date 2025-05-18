@@ -65,8 +65,12 @@
             </button>
         <!-- кнопка на подгрузку роутера со списком студентов -->
         <button pButton type="submit" [disabled]="tableLoading"
-            class="font-bold mt-5 place-self-center" severity="info">
-            <span *ngIf="tableLoading" class="pi pi-spin pi-spinner"></span>
+            class="font-bold border-2! mt-5 place-self-center" severity="info">
+            @if (tableLoading) {
+                <span class="pi pi-spin pi-spinner"></span>
+            } @else {
+                <span class="pi pi-refresh"></span>
+            }
             Обновить таблицу
         </button>
         </form>
@@ -85,8 +89,14 @@
                 (onSelect)="onFileSelect($event, 'journal')" (onRemove)="onClearFile('journal')"
                 (onClear)="onClearFile('journal')" showUploadButton="false" />
 
-            <button pButton [disabled]="importLoading" class="place-self-center" (click)="uploadAll()" severity="info">
-                <span pButtonIcon *ngIf="importLoading" class="pi pi-spin pi-spinner"></span>
+            <button pButton class="font-bold border-2! place-self-center"  
+            [disabled]="importLoading || !files.ld || !files.contract || !files.journal"
+            (click)="uploadAll()" severity="info">
+                @if (importLoading) {
+                <span class="pi pi-spin pi-spinner"></span>
+                } @else {
+                <span class="pi pi-cloud-upload"></span>
+                }
                 <span pButtonLabel>Импортировать документы</span>
             </button>
         </div>
