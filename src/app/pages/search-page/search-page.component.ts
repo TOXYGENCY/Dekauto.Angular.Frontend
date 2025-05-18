@@ -121,7 +121,7 @@ export class SearchPageComponent implements OnInit {
         this.onStudentsRecieved(response);
       },
       error: error => {
-        console.error(error);
+        console.error(error.status, error.error, error.message, error);
         this.messageService.add({ severity: 'error', summary: 'Ошибка получения студентов', detail: error.message });
       }
     });
@@ -132,27 +132,23 @@ export class SearchPageComponent implements OnInit {
     this.apiGroupsService.getAllGroupsAsync().subscribe({
       next: (response) => {
         // Получили группы, получаем студентов
-          this.apiStudentsService.getAllStudentsAsync().subscribe({
-            next: (response) => {
-              // Записываем студентов в кэш
-              this.onStudentsRecieved(response);
-            },
-            complete: () => {
-              // Заполняем каждую группу студетами и пишем в кеш
-              this.onGroupsRecieved(response);
-            },
-            error: (error) => {
-              console.error(error);
-              this.messageService.add({ severity: 'error', 
-                summary: 'Ошибка получения студентов', detail: error.message });
-            }
-          });
-        
+        this.apiStudentsService.getAllStudentsAsync().subscribe({
+          next: (response) => {
+            // Записываем студентов в кэш
+            this.onStudentsRecieved(response);
+          },
+          complete: () => {
+            // Заполняем каждую группу студетами и пишем в кеш
+            this.onGroupsRecieved(response);
+          },
+          error: (error) => {
+            this.showError(error, "Студенты: Ошибка получения студентов");
+          }
+        });
+
       },
       error: (error) => {
-        console.error(error);
-        this.messageService.add({ severity: 'error', 
-          summary: 'Ошибка получения групп', detail: error.message });
+        this.showError(error, "Группы: Ошибка получения групп");
       }
     });
   }
@@ -173,6 +169,11 @@ export class SearchPageComponent implements OnInit {
 
     const formData = new FormData();
 
+    if (!this.files.ld || !this.files.contract || !this.files.journal) {
+      this.showError(null, "Импорт: Не все файлы загружены.", "Пожалуйста, загрузите все требуемые файлы.");
+      this.importLoading = false;
+      return;
+    }
     if (this.files.ld) formData.append('ld', this.files.ld);
     if (this.files.contract) formData.append('contract', this.files.contract);
     if (this.files.journal) formData.append('journal', this.files.journal);
@@ -183,9 +184,8 @@ export class SearchPageComponent implements OnInit {
         this.importLoading = false;
       },
       error: error => {
-        console.error(error);
+        this.showError(error, "Импорт: Ошибка отправки/принятия файла");
         this.importLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка отправки/принятия файла', detail: error.message.message });
       }
     });
   }
@@ -199,9 +199,8 @@ export class SearchPageComponent implements OnInit {
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, environment.export.student.defaultName));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файла");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
       }
     });
   }
@@ -214,11 +213,28 @@ export class SearchPageComponent implements OnInit {
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, environment.export.group.defaultName));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файла");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
       }
     });
   }
 
+  showError(error: any, summary: string, detail?: string) {
+    summary = summary ? summary : "Ошибка";
+
+    if (error) {
+      console.error(error.status, error.error, error.message, error);
+    } else {
+      console.error(summary, detail);
+    }
+
+    if (!detail) {
+      if (typeof error.error == 'string') {
+        detail = error.error;
+      } else {
+        detail = "Возникла непредвиденная ошибка. Повторите попытку или свяжитесь с администратором";
+      }
+    }
+    this.messageService.add({ severity: 'error', summary: summary, detail: detail, life: 7000 });
+  }
 }

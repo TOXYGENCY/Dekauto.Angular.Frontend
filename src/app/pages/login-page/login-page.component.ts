@@ -89,21 +89,19 @@ export class LoginPageComponent implements OnInit {
           console.log("Вход успешен. Перенаправление...");
           this.router.navigate(this.loginRedirect);
         } else {
-          this.ShowHint(true, "Неверный пароль.");
+          this.ShowHint(true, "Неверный логин/пароль.");
         }
         this.showLoading = false;
         this.disableSubmit = false;
       },
       (error: any) => {
-        console.error(error.message);
-        console.error(error);
-        console.error(error.error);
+        console.error(error.status, error.error, error.message, error);
         let errorHint: string;
         // INFO: ошибки nginx и контроллеров выглядят одинаково (404 не найден адрес == 404 нет пользователя)
-        if (error.status == 404 && error.ok == true) {
-          errorHint = `Пользователь не существует.`;
+        if (error.status == 404 && typeof error.error == 'string') {
+          errorHint = `Неверный логин/пароль.`;
         } else {
-          errorHint = `Ошибка сервиса - что-то пошло не так.`;
+          errorHint = `Ошибка сервиса - что-то пошло не так. (Скорее всего, проблема маршрутизации)`;
         }
         this.ShowHint(true, errorHint + ` (Код: ${error.status})`);
         this.showLoading = false;
