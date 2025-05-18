@@ -26,7 +26,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   // Добавляем токен к запросу (если имеется)
   const authReq = addTokenToRequest(request, authService.getAccessToken());
 
-  console.log('[Interceptor] Отправка запроса с токеном');
+  console.log('[Interceptor] Отправка запроса с токеном', request);
   return next(authReq).pipe(
     catchError(error => {
       console.log(`[Interceptor] Ошибка запроса: ${error.status}`, error);
@@ -53,7 +53,7 @@ function handle401Error(
 ): Observable<any> {
   // Обрабатываем только 401 ошибки (Unauthorized)
   if (error.status !== 401) {
-    console.log('[Interceptor] Пропускаем не-401 ошибку');
+    // console.log('[Interceptor] Пропускаем не-401 ошибку');
     return throwError(() => error);
   }
 

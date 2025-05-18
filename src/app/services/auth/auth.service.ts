@@ -5,6 +5,8 @@ import { LoginAdapter } from '../../domain-models/Adapters/LoginAdapter';
 import { CurrentCredentials } from '../../domain-models/Adapters/CurrentCredentials';
 import { ApiUsersService } from '../../api-services/users/api-users.service';
 import { User } from '../../domain-models/User';
+import { DataManagerService } from '../data-manager.service';
+import { CachedDataService } from '../cached-data.service';
 
 @Injectable({
   providedIn: 'root' // Сервис предоставляется на уровне корневого модуля
@@ -16,15 +18,28 @@ export class AuthService {
 
   // Observable для подписки на изменения состояния аутентификации
   public currentCredentials$: Observable<any>;
-  apiUrl: any;
 
-  constructor(private http: HttpClient, private apiUsersService: ApiUsersService) {
-    // Инициализация BehaviorSubject из localStorage
-    this.currentCredentials = new BehaviorSubject<any>(
-      JSON.parse(localStorage.getItem('currentCredentials') || "{}")
-    );
+  constructor(private http: HttpClient, private apiUsersService: ApiUsersService,
+    private dataManagerService: DataManagerService, private cachedDataService: CachedDataService
+  ) {
+    let initialValue: CurrentCredentials | null = null;
+    try {
+      const stored = localStorage.getItem('currentCredentials');
+      if (stored) {
+        initialValue = JSON.parse(stored);
+        // Валидация структуры
+        if (!initialValue?.user?.id || !initialValue.accessToken) {
+          throw new Error('Установленные данные входа некорректны или их нет');
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка данных входа:', error);
+      localStorage.removeItem('currentCredentials');
+      initialValue = null;
+    }
+
+    this.currentCredentials = new BehaviorSubject<any>(initialValue);
     this.currentCredentials$ = this.currentCredentials.asObservable();
-    
   }
 
   public get currentCredentialsValue() {
@@ -32,8 +47,8 @@ export class AuthService {
   }
 
   // для получения текущего значения вне подписки
-  public get currentUser() {
-    return this.currentCredentialsValue.user;
+  public get currentUser(): User | null {
+    return this.currentCredentialsValue?.user || null;
   }
 
   // Метод для входа пользователя
@@ -58,6 +73,9 @@ export class AuthService {
   //  Метод для выхода пользователя
   //  Очищает хранилище и обновляет состояние
   public logout() {
+    this.cachedDataService.clearGroupsCache();
+    this.cachedDataService.clearStudentsCache();
+    this.dataManagerService.clearSelectedGroup();
     localStorage.removeItem('currentCredentials');
     this.currentCredentials.next(null);
   }
@@ -70,7 +88,8 @@ export class AuthService {
 
   //  Проверка статуса аутентификации
   public isAuthenticated(): boolean {
-    return this.currentCredentialsValue?.accessToken != null;
+    return (this.currentCredentialsValue?.accessToken != null 
+         && this.currentUser != null);
   }
 
   // Получение JWT токена текущего пользователя
@@ -79,10 +98,15 @@ export class AuthService {
   }
 
   public refreshTokens(): Observable<any> {
-    // Cookie с refresh token отправится автоматически
-    return this.apiUsersService.RefreshTokens(this.currentUser.id).pipe(
-      tap(response => this.storeCredentials(response))
-    );
+    if (this.isAuthenticated()) {
+      // Cookie с refresh token отправится автоматически
+      return this.apiUsersService.RefreshTokens(this.currentUser!.id).pipe(
+        tap(response => this.storeCredentials(response))
+      );
+    } else {
+      this.logout();
+      return new Observable(observer => observer.complete());
+    }
   }
 
   getRole(): string {

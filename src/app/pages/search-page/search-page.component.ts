@@ -19,13 +19,15 @@ import { DataManagerService } from '../../services/data-manager.service';
 import { FileSavingService } from '../../services/file-saving.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment.development';
+import { HeaderComponent } from '../header/header.component';
+import { HttpResponse } from '@angular/common/http';
 
 
 @Component({
   selector: 'app-search-page',
   imports: [FormsModule, SelectModule, ButtonModule,
     RouterOutlet, RouterModule, FileUploadModule, ToastModule,
-    CommonModule
+    CommonModule, HeaderComponent
   ],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.css',
@@ -69,8 +71,9 @@ export class SearchPageComponent implements OnInit {
       console.log("Из данных - выбранная группа: ", this.selectedGroup);
     });
 
-    this.getAllStudentsAsync();
-    this.getAllGroupsAsync();
+    // this.getAllStudentsAsync();
+    // this.getAllGroupsAsync();
+    this.getAllGroupsWithStudentsAsync();
   }
 
   // По уничтожении компонента отписываемся
@@ -91,33 +94,65 @@ export class SearchPageComponent implements OnInit {
     }
   }
 
-  getAllStudentsAsync() {
+  searchSubmit() {
+    // this.router.navigate(['students']);
+    this.getAllGroupsWithStudentsAsync();
+    if (this.selectedGroup) this.dataManagerService.updateSelectedGroup(this.selectedGroup);
+  }
+
+  onStudentsRecieved(recieved: Student[]) {
+    this.students = recieved;
+    // Сохраняем в кэш
+    this.cachedDataService.updateStudentsCache(this.students);
+  }
+
+  onGroupsRecieved(recieved: Group[]) {
+    this.groups = recieved;
+    // Сохраняем в кэш
+    this.groups.forEach(group => {
+      group.students = this.students.filter(student => student.groupId == group.id);
+    });
+    this.cachedDataService.updateGroupsCache(this.groups);
+  }
+
+  /*getAllStudentsAsync() {
     this.apiStudentsService.getAllStudentsAsync().subscribe({
       next: response => {
-        this.students = response;
-        // Сохраняем в кэш
-        this.cachedDataService.updateStudentsCache(this.students);
+        this.onStudentsRecieved(response);
       },
       error: error => {
-        console.error(error);
+        console.error(error.status, error.error, error.message, error);
         this.messageService.add({ severity: 'error', summary: 'Ошибка получения студентов', detail: error.message });
+      }
+    });
+  }*/
+
+  async getAllGroupsWithStudentsAsync() {
+    // Начинаем получать группы
+    this.apiGroupsService.getAllGroupsAsync().subscribe({
+      next: (response) => {
+        // Получили группы, получаем студентов
+        this.apiStudentsService.getAllStudentsAsync().subscribe({
+          next: (response) => {
+            // Записываем студентов в кэш
+            this.onStudentsRecieved(response);
+          },
+          complete: () => {
+            // Заполняем каждую группу студетами и пишем в кеш
+            this.onGroupsRecieved(response);
+          },
+          error: (error) => {
+            this.showError(error, "Студенты: Ошибка получения студентов");
+          }
+        });
+
+      },
+      error: (error) => {
+        this.showError(error, "Группы: Ошибка получения групп");
       }
     });
   }
 
-  getAllGroupsAsync() {
-    this.apiGroupsService.getAllGroupsAsync().subscribe({
-      next: (response: any) => {
-        this.groups = response;
-        // Сохраняем в кэш
-        this.cachedDataService.updateGroupsCache(this.groups);
-      },
-      error: error => {
-        console.error(error);
-        this.messageService.add({ severity: 'error', summary: 'Ошибка получения групп', detail: error.message });
-      }
-    });
-  }
   // TODO: передлать на числовые индексы
   onFileSelect(event: any, type: 'ld' | 'contract' | 'journal') {
     if (event.files && event.files.length > 0) {
@@ -134,6 +169,11 @@ export class SearchPageComponent implements OnInit {
 
     const formData = new FormData();
 
+    if (!this.files.ld || !this.files.contract || !this.files.journal) {
+      this.showError(null, "Импорт: Не все файлы загружены.", "Пожалуйста, загрузите все требуемые файлы.");
+      this.importLoading = false;
+      return;
+    }
     if (this.files.ld) formData.append('ld', this.files.ld);
     if (this.files.contract) formData.append('contract', this.files.contract);
     if (this.files.journal) formData.append('journal', this.files.journal);
@@ -144,20 +184,12 @@ export class SearchPageComponent implements OnInit {
         this.importLoading = false;
       },
       error: error => {
-        console.error(error);
+        this.showError(error, "Импорт: Ошибка отправки/принятия файла");
         this.importLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка отправки/принятия файла', detail: error.message.message });
       }
     });
   }
 
-  // TODO: сам поиск и фильтрация с перенаправлением
-  searchSubmit() {
-    this.router.navigate(['students']);
-    this.getAllStudentsAsync();
-    this.getAllGroupsAsync();
-    if (this.selectedGroup) this.dataManagerService.updateSelectedGroup(this.selectedGroup);
-  }
 
   exportStudent(studentId: string) {
     this.exportLoading = true;
@@ -167,9 +199,8 @@ export class SearchPageComponent implements OnInit {
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, environment.export.student.defaultName));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файла");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
       }
     });
   }
@@ -182,11 +213,28 @@ export class SearchPageComponent implements OnInit {
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, environment.export.group.defaultName));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файла");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
       }
     });
   }
 
+  showError(error: any, summary: string, detail?: string) {
+    summary = summary ? summary : "Ошибка";
+
+    if (error) {
+      console.error(error.status, error.error, error.message, error);
+    } else {
+      console.error(summary, detail);
+    }
+
+    if (!detail) {
+      if (typeof error.error == 'string') {
+        detail = error.error;
+      } else {
+        detail = "Возникла непредвиденная ошибка. Повторите попытку или свяжитесь с администратором";
+      }
+    }
+    this.messageService.add({ severity: 'error', summary: summary, detail: detail, life: 7000 });
+  }
 }

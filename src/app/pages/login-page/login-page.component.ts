@@ -26,8 +26,9 @@ import { AuthService } from '../../services/auth/auth.service';
   styleUrl: './login-page.component.css'
 })
 
-export class LoginPageComponent {
-  constructor(private apiUsersService: ApiUsersService, private authService: AuthService, private router: Router) { }
+export class LoginPageComponent implements OnInit {
+  constructor(private apiUsersService: ApiUsersService, 
+    private authService: AuthService, private router: Router)  { }
 
   showErrorHint: boolean = false;
   showLoading: boolean = false;
@@ -41,6 +42,10 @@ export class LoginPageComponent {
     Validators.required,
     Validators.email
   ]);
+
+  ngOnInit(): void {
+    this.authService.logout();
+  }
 
   ShowHint(state: boolean, text: string = "") {
     if (state == true && text == '') {
@@ -84,21 +89,19 @@ export class LoginPageComponent {
           console.log("Вход успешен. Перенаправление...");
           this.router.navigate(this.loginRedirect);
         } else {
-          this.ShowHint(true, "Неверный пароль.");
+          this.ShowHint(true, "Неверный логин/пароль.");
         }
         this.showLoading = false;
         this.disableSubmit = false;
       },
       (error: any) => {
-        console.error(error.message);
-        console.error(error);
-        console.error(error.error);
+        console.error(error.status, error.error, error.message, error);
         let errorHint: string;
         // INFO: ошибки nginx и контроллеров выглядят одинаково (404 не найден адрес == 404 нет пользователя)
-        if (error.status == 404 && error.ok == true) {
-          errorHint = `Пользователь не существует.`;
+        if (error.status == 404 && typeof error.error == 'string') {
+          errorHint = `Неверный логин/пароль.`;
         } else {
-          errorHint = `Ошибка сервиса - что-то пошло не так.`;
+          errorHint = `Ошибка сервиса - что-то пошло не так. (Скорее всего, проблема маршрутизации)`;
         }
         this.ShowHint(true, errorHint + ` (Код: ${error.status})`);
         this.showLoading = false;

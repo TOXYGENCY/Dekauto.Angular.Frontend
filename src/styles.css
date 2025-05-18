@@ -26,3 +26,13 @@ button {
 .p-fileupload-basic {
     @apply justify-start!;
 }
+
+p-menubar[name="header"] p-menubarsub {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+p-tabmenu ul {
+    justify-content: center !important;
+}

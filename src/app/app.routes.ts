@@ -10,6 +10,7 @@ import { RoleKeys } from './domain-models/Role';
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: LoginPageComponent },
+    { path: 'search', redirectTo: 'search/students', pathMatch: 'full'},
     {
         path: 'search', component: SearchPageComponent, 
         canActivate: [authGuard],
