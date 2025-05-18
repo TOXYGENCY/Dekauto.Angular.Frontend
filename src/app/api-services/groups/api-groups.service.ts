@@ -18,4 +18,8 @@ export class ApiGroupsService {
   public getAllGroupsAsync(): Observable<any> {
     return this.http.get(`${this.apiUrl}/groups`);
   }
+
+  public deleteGroup(groupId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/groups/${groupId}`);
+  }
 }

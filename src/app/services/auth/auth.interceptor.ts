@@ -83,7 +83,7 @@ function handle401Error(
       refreshToken$ = null;
     })
   );
-
+  // TODO: при истечении токена и ошибке 500 в другом сервисе выкидывает пользователя
   return refreshToken$.pipe(
     switchMap(tokens => {
       console.log(`[Interceptor] Обновление успешно. Выполняем ${pendingRequests.length} ожидающих запросов`);

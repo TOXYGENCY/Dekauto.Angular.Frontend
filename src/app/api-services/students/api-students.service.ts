@@ -15,4 +15,8 @@ export class ApiStudentsService {
     public getAllStudentsAsync(): Observable<any> {
       return this.http.get(`${this.apiUrl}/students`);
     }
+
+  public deleteStudent(studentId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/students/${studentId}`);
+  }
 }

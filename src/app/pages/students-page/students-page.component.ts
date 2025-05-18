@@ -11,11 +11,12 @@ import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { FileSavingService } from '../../services/file-saving.service';
 import { DataManagerService } from '../../services/data-manager.service';
-import { GroupByOptionsWithElement } from 'rxjs';
+import { GroupByOptionsWithElement } from 'rxjs'; 
 
 @Component({
   selector: 'app-students-page',
-  imports: [TableModule, CommonModule, ButtonModule],
+  imports: [TableModule, CommonModule, ButtonModule,
+  ],
   templateUrl: './students-page.component.html',
   styleUrl: './students-page.component.css'
 })
@@ -126,6 +127,23 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
         this.showError(error, "Экспорт: Ошибка экспорта файлов");
         this.exportLoading = false;
         btn.disabled = false;
+      }
+    });
+  }
+
+  deleteStudent(studentId: string, event: any) {
+    let btn = event.target.closest('button');
+    let tr = event.target.closest('tr');
+    btn.disabled = true;
+    tr.style.opacity = "0.3";
+    tr.querySelectorAll('*').forEach((el: { disabled: boolean; }) => el.disabled = true);
+    
+    this.apiStudentsService.deleteStudent(studentId).subscribe({
+      next: () => {
+        this.updateStudentsInTable();
+      },
+      error: (error: any) => {
+        this.showError(error, "Студенты: Ошибка удаления студента");
       }
     });
   }

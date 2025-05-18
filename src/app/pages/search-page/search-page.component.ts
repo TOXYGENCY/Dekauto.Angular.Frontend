@@ -221,6 +221,21 @@ export class SearchPageComponent implements OnInit {
     });
   }
 
+  deleteGroup(event: any) {
+    let btn = event.target.closest('button');
+    btn.disabled = true;
+    this.apiGroupsService.deleteGroup(this.selectedGroup!.id).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Группы: Успешное удаление', 
+          detail: `Группа ${this.selectedGroup!.name} успешно удалена` });
+        this.selectedGroup = undefined;
+        },
+      error: (error: any) => {
+        this.showError(error, "Группы: Ошибка удаления группы");
+      }
+    });
+  }
+
   showError(error: any, summary: string, detail?: string) {
     summary = summary ? summary : "Ошибка";
 

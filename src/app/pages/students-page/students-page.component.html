@@ -1,6 +1,9 @@
 <p-table rowHover="true" showGridlines="true" size="small" [value]="studentsInTable">
     <ng-template pTemplate="header">
         <tr>
+            <th class="delete text-center!">
+                <i class="pi pi-times"></i>
+            </th>
             <th>Карточка</th>
             <th pSortableColumn="surname">ФИО <p-sortIcon field="name" /></th>
             <th>Группа</th>
@@ -8,6 +11,11 @@
     </ng-template>
     <ng-template pTemplate="body" let-student>
         <tr class="p-selectable-row">
+            <td class="delete text-center!">
+                <button pButton outlined="true" class="delete" severity="danger" (click)="deleteStudent(student.id, $event)">
+                    <i pButtonIcon class="pi pi-trash"></i>
+                </button>
+            </td>
             <td class="excel">
                 <button pButton class="excel" (click)="exportStudent(student.id, $event)">
                     @if (exportLoading) {
