@@ -54,7 +54,7 @@ export class SearchPageComponent implements OnInit {
   importLoading: boolean = false;
   exportLoading: boolean = false;
 
-  excelFileFormat = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  excelFileFormat = '.xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .xls, application/vnd.ms-excel';
   cancelLabel = 'Очистить';
 
   selectedStudent: Student | undefined;
