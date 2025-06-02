@@ -13,7 +13,7 @@ import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
 import { CachedDataService } from '../../services/cached-data.service';
 import { ApiImportService } from '../../api-services/import/api-import.service';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { DataManagerService } from '../../services/data-manager.service';
 import { FileSavingService } from '../../services/file-saving.service';
@@ -21,17 +21,18 @@ import { AuthService } from '../../services/auth/auth.service';
 import { environment } from '../../../environments/environment.development';
 import { HeaderComponent } from '../header/header.component';
 import { HttpResponse } from '@angular/common/http';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 
 @Component({
   selector: 'app-search-page',
   imports: [FormsModule, SelectModule, ButtonModule,
     RouterOutlet, RouterModule, FileUploadModule, ToastModule,
-    CommonModule, HeaderComponent
+    CommonModule, HeaderComponent, ConfirmPopupModule
   ],
   templateUrl: './search-page.component.html',
   styleUrl: './search-page.component.css',
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 })
 export class SearchPageComponent implements OnInit {
   constructor(private router: Router, private activatedRoute: ActivatedRoute,
@@ -39,7 +40,7 @@ export class SearchPageComponent implements OnInit {
     private apiGroupsService: ApiGroupsService, private cachedDataService: CachedDataService,
     private apiImportService: ApiImportService, private messageService: MessageService,
     private dataManagerService: DataManagerService, private fileSavingService: FileSavingService,
-    private userAuthService: AuthService) { }
+    private userAuthService: AuthService, private confirmationService: ConfirmationService) { }
 
 
   dataManagerSub: any;
@@ -82,6 +83,8 @@ export class SearchPageComponent implements OnInit {
       this.dataManagerSub.unsubscribe();
     }
   }
+
+
 
   onGroupChange(group: Group | undefined) {
     this.dataManagerService.updateSelectedGroup(this.selectedGroup);
@@ -183,6 +186,12 @@ export class SearchPageComponent implements OnInit {
     this.apiImportService.importFileAsync(formData).subscribe({
       next: response => {
         console.log(response);
+        this.getAllGroupsWithStudentsAsync();
+        this.messageService.add(
+          {
+            severity: 'success', summary: 'Импорт: успех принятия новых данных.',
+            detail: 'Документы успешно импортированы. Обновляем таблицу...'
+          });
         this.importLoading = false;
       },
       error: error => {
@@ -221,15 +230,39 @@ export class SearchPageComponent implements OnInit {
     });
   }
 
+  confirmDeleteGroup(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      rejectButtonProps: {
+        icon: 'pi pi-cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        severity: 'success',
+        icon: 'pi pi-check',
+      },
+      accept: () => {
+        this.deleteGroup(event);
+        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+      }
+    });
+  }
+
   deleteGroup(event: any) {
     let btn = event.target.closest('button');
     btn.disabled = true;
     this.apiGroupsService.deleteGroup(this.selectedGroup!.id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Группы: Успешное удаление', 
-          detail: `Группа ${this.selectedGroup!.name} успешно удалена` });
+        this.messageService.add({
+          severity: 'success', summary: 'Группы: Успешное удаление',
+          detail: `Группа ${this.selectedGroup!.name} успешно удалена`
+        });
         this.selectedGroup = undefined;
-        },
+      },
       error: (error: any) => {
         this.showError(error, "Группы: Ошибка удаления группы");
       }

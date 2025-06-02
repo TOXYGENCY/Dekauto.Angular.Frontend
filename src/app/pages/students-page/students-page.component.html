@@ -12,7 +12,7 @@
     <ng-template pTemplate="body" let-student>
         <tr class="p-selectable-row">
             <td class="delete text-center!">
-                <button pButton outlined="true" class="delete" severity="danger" (click)="deleteStudent(student.id, $event)">
+                <button pButton outlined="true" class="delete" severity="danger" (click)="confirmDeleteStudent(student.id, $event)">
                     <i pButtonIcon class="pi pi-trash"></i>
                 </button>
             </td>

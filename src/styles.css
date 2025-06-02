@@ -56,3 +56,15 @@ p-menubar[name="header"] p-menubarsub {
 p-tabmenu ul {
     justify-content: center !important;
 }
+
+.p-confirmpopup-content {
+    /* display: none !important; */
+    @apply text-base;
+}
+.p-confirmpopup-footer {
+}
+.p-confirmpopup {
+    /* padding: 0.7rem 0.75rem 0.7rem 0.75rem !important;  */
+    box-shadow: 0 4px 20px 13px rgba(0, 0, 0, 0.3),
+        0 2px 9px 1px rgba(0, 0, 0, 0.3) !important;
+}

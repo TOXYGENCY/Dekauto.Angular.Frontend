@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { Student } from '../../domain-models/Student';
 import { TableModule } from 'primeng/table';
@@ -7,7 +7,7 @@ import { CachedDataService } from '../../services/cached-data.service';
 import { Group } from '../../domain-models/Group';
 import { ApiExportService } from '../../api-services/export/api-export.service';
 import { student_export_default_name } from '../../app.config';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { FileSavingService } from '../../services/file-saving.service';
 import { DataManagerService } from '../../services/data-manager.service';
@@ -18,13 +18,14 @@ import { GroupByOptionsWithElement } from 'rxjs';
   imports: [TableModule, CommonModule, ButtonModule,
   ],
   templateUrl: './students-page.component.html',
-  styleUrl: './students-page.component.css'
+  styleUrls: ['./students-page.component.css']
 })
 export class StudentsPageComponent implements OnInit, OnDestroy {
 
   constructor(private apiStudentsService: ApiStudentsService, private cachedDataService: CachedDataService,
     private apiExportService: ApiExportService, private messageService: MessageService,
-    private fileSavingService: FileSavingService, private dataManagerService: DataManagerService) { }
+    private fileSavingService: FileSavingService, private dataManagerService: DataManagerService,
+  private confirmationService: ConfirmationService) { }
 
   // Переменные подписки для того, чтобы можно было отписаться
   private studentsSub: any;
@@ -131,6 +132,29 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  confirmDeleteStudent(studentId: string, event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Удалить ${this.students.find(s => s.id == studentId)?.surname}?`,
+      rejectButtonProps: {
+        label: '',
+        icon: 'pi pi-ban',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: '',
+        severity: 'info',
+        icon: 'pi pi-check',
+      },
+      accept: () => {
+        this.deleteStudent(studentId, event);
+      },
+      reject: () => {
+      }
+    });
+  }
+
   deleteStudent(studentId: string, event: any) {
     let btn = event.target.closest('button');
     let tr = event.target.closest('tr');
@@ -141,6 +165,7 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     this.apiStudentsService.deleteStudent(studentId).subscribe({
       next: () => {
         this.updateStudentsInTable();
+        this.messageService.add({ severity: 'success', summary: 'Удаление студента...', detail: 'Студент успешно удален', life: 1000 });
       },
       error: (error: any) => {
         this.showError(error, "Студенты: Ошибка удаления студента");

@@ -101,7 +101,7 @@ export class LoginPageComponent implements OnInit {
         if (error.status == 404 && typeof error.error == 'string') {
           errorHint = `Неверный логин/пароль.`;
         } else {
-          errorHint = `Ошибка сервиса - что-то пошло не так. (Скорее всего, проблема маршрутизации)`;
+          errorHint = `Ошибка сервиса - что-то пошло не так.`;
         }
         this.ShowHint(true, errorHint + ` (Код: ${error.status})`);
         this.showLoading = false;
