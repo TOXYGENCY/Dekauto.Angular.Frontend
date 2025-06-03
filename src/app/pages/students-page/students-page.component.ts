@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation } from '@angular/core';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { Student } from '../../domain-models/Student';
 import { TableModule } from 'primeng/table';
@@ -7,23 +7,25 @@ import { CachedDataService } from '../../services/cached-data.service';
 import { Group } from '../../domain-models/Group';
 import { ApiExportService } from '../../api-services/export/api-export.service';
 import { student_export_default_name } from '../../app.config';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { FileSavingService } from '../../services/file-saving.service';
 import { DataManagerService } from '../../services/data-manager.service';
-import { GroupByOptionsWithElement } from 'rxjs';
+import { GroupByOptionsWithElement } from 'rxjs'; 
 
 @Component({
   selector: 'app-students-page',
-  imports: [TableModule, CommonModule, ButtonModule],
+  imports: [TableModule, CommonModule, ButtonModule,
+  ],
   templateUrl: './students-page.component.html',
-  styleUrl: './students-page.component.css'
+  styleUrls: ['./students-page.component.css']
 })
 export class StudentsPageComponent implements OnInit, OnDestroy {
 
   constructor(private apiStudentsService: ApiStudentsService, private cachedDataService: CachedDataService,
     private apiExportService: ApiExportService, private messageService: MessageService,
-    private fileSavingService: FileSavingService, private dataManagerService: DataManagerService) { }
+    private fileSavingService: FileSavingService, private dataManagerService: DataManagerService,
+  private confirmationService: ConfirmationService) { }
 
   // Переменные подписки для того, чтобы можно было отписаться
   private studentsSub: any;
@@ -93,33 +95,100 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     return this.groups.find(g => g.id == groupId)?.name || '-';
   }
 
-  exportStudent(studentId: string) {
-    this.exportLoading = true;
+  exportStudent(studentId: string, event: any) {
+    let btn = event.target.closest('button');
+    btn.disabled = true;
+    // this.exportLoading = true;
     this.apiExportService.exportStudentCardAsync(studentId).subscribe({
       next: (response) => {
         this.exportLoading = false;
+        btn.disabled = false;
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файлов");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файла', detail: error });
+        btn.disabled = false;
       }
     });
   }
 
-  exportGroup(groupId: string) {
+  exportGroup(groupId: string, event: any) {
+    let btn = event.target.closest('button');
+    btn.disabled = true;
+
     this.exportLoading = true;
     this.apiExportService.exportGroupCardsAsync(groupId).subscribe({
       next: (response) => {
         this.exportLoading = false;
+        btn.disabled = false;
         this.fileSavingService.saveFile(response.body as Blob, this.fileSavingService.parseFileName(response, student_export_default_name));
       },
       error: (error) => {
-        console.error(error);
+        this.showError(error, "Экспорт: Ошибка экспорта файлов");
         this.exportLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Ошибка экспорта файлов', detail: error });
+        btn.disabled = false;
       }
     });
+  }
+
+  confirmDeleteStudent(studentId: string, event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Удалить ${this.students.find(s => s.id == studentId)?.surname}?`,
+      rejectButtonProps: {
+        label: '',
+        icon: 'pi pi-ban',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: '',
+        severity: 'info',
+        icon: 'pi pi-check',
+      },
+      accept: () => {
+        this.deleteStudent(studentId, event);
+      },
+      reject: () => {
+      }
+    });
+  }
+
+  deleteStudent(studentId: string, event: any) {
+    let btn = event.target.closest('button');
+    let tr = event.target.closest('tr');
+    btn.disabled = true;
+    tr.style.opacity = "0.3";
+    tr.querySelectorAll('*').forEach((el: { disabled: boolean; }) => el.disabled = true);
+    
+    this.apiStudentsService.deleteStudent(studentId).subscribe({
+      next: () => {
+        this.updateStudentsInTable();
+        this.messageService.add({ severity: 'success', summary: 'Удаление студента...', detail: 'Студент успешно удален', life: 1000 });
+      },
+      error: (error: any) => {
+        this.showError(error, "Студенты: Ошибка удаления студента");
+      }
+    });
+  }
+
+  showError(error: any, summary: string, detail?: string) {
+    summary = summary ? summary : "Ошибка";
+
+    if (error) {
+      console.error(error.status, error.error, error.message, error);
+    } else {
+      console.error(summary, detail);
+    }
+
+    if (!detail) {
+      if (typeof error.error == 'string') {
+        detail = error.error;
+      } else {
+        detail = "Возникла непредвиденная ошибка. Повторите попытку или свяжитесь с администратором";
+      }
+    }
+    this.messageService.add({ severity: 'error', summary: summary, detail: detail, life: 7000 });
   }
 }
