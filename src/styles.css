@@ -36,7 +36,8 @@ button {
 }
 
 .p-fileupload-content {
-    @apply py-2 min-h-8! border-dashed! border-primary-200!;
+    @apply py-2 min-h-8! border-dashed! border-primary-200! justify-center! italic;
+    padding: 0.6rem 1.125rem !important;
 }
 
 .p-fileupload-file-name {
@@ -61,10 +62,13 @@ p-tabmenu ul {
     /* display: none !important; */
     @apply text-base;
 }
-.p-confirmpopup-footer {
-}
 .p-confirmpopup {
     /* padding: 0.7rem 0.75rem 0.7rem 0.75rem !important;  */
     box-shadow: 0 4px 20px 13px rgba(0, 0, 0, 0.3),
         0 2px 9px 1px rgba(0, 0, 0, 0.3) !important;
+}
+
+.drag-hint {
+    @apply text-sm;
+    color: var(--p-select-placeholder-color);
 }

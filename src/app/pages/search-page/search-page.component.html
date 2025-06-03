@@ -83,15 +83,27 @@
         <div class="flex flex-col max-w-full gap-2 place-self-center justify-left items-left p-1">
             <p-fileupload mode="advanced" chooseLabel="Личное дело" chooseIcon="pi pi-upload" [accept]="excelFileFormat"
                 [cancelLabel]="cancelLabel" maxFileSize="1000000" (onSelect)="onFileSelect($event, 'ld')"
-                (onRemove)="onClearFile('ld')" (onClear)="onClearFile('ld')" showUploadButton="false" />
+                (onRemove)="onClearFile('ld')" (onClear)="onClearFile('ld')" showUploadButton="false">
+                <ng-template #empty>
+                    <span class="drag-hint">Перетащите файл ЛД сюда.</span>
+                </ng-template>
+            </p-fileupload>
             <p-fileupload mode="advanced" chooseLabel="Журнал договоров" chooseIcon="pi pi-upload"
                 [accept]="excelFileFormat" maxFileSize="1000000" [cancelLabel]="cancelLabel"
                 (onSelect)="onFileSelect($event, 'contract')" (onRemove)="onClearFile('contract')"
-                (onClear)="onClearFile('contract')" showUploadButton="false" />
+                (onClear)="onClearFile('contract')" showUploadButton="false">
+                <ng-template #empty>
+                    <span class="drag-hint">Перетащите файл договоров сюда.</span>
+                </ng-template>
+            </p-fileupload>
             <p-fileupload [className]="" mode="advanced" chooseLabel="Журнал зачёток" [cancelLabel]="cancelLabel"
                 chooseIcon="pi pi-upload" [accept]="excelFileFormat" maxFileSize="1000000"
                 (onSelect)="onFileSelect($event, 'journal')" (onRemove)="onClearFile('journal')"
-                (onClear)="onClearFile('journal')" showUploadButton="false" />
+                (onClear)="onClearFile('journal')" showUploadButton="false">
+                <ng-template #empty>
+                    <span class="drag-hint">Перетащите файл зачеток сюда.</span>
+                </ng-template>
+            </p-fileupload>
 
             <button pButton class="font-bold border-2! place-self-center"
                 [disabled]="importLoading || !files.ld || !files.contract || !files.journal" (click)="uploadAll()"

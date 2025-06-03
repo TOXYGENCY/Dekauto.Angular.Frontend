@@ -1,4 +1,5 @@
-<p-table rowHover="true" showGridlines="true" size="small" [value]="studentsInTable">
+<p-table rowHover="true" showGridlines="true" size="small" [value]="studentsInTable" [paginator]="true" [rows]="20"
+    [rowsPerPageOptions]="[5, 20, 40, 100, 250]">
     <ng-template pTemplate="header">
         <tr>
             <th class="delete text-center!">
@@ -12,17 +13,18 @@
     <ng-template pTemplate="body" let-student>
         <tr class="p-selectable-row">
             <td class="delete text-center!">
-                <button pButton outlined="true" class="delete" severity="danger" (click)="confirmDeleteStudent(student.id, $event)">
+                <button pButton outlined="true" class="delete" severity="danger"
+                    (click)="confirmDeleteStudent(student.id, $event)">
                     <i pButtonIcon class="pi pi-trash"></i>
                 </button>
             </td>
             <td class="excel">
                 <button pButton class="excel" (click)="exportStudent(student.id, $event)">
                     @if (exportLoading) {
-                        <span pButtonIcon class="pi pi-spin pi-spinner"></span>
+                    <span pButtonIcon class="pi pi-spin pi-spinner"></span>
                     } @else {
-                        <i pButtonIcon class="pi pi-download"></i>
-                        <span pButtonLabel>.xslx</span>
+                    <i pButtonIcon class="pi pi-download"></i>
+                    <span pButtonLabel>.xslx</span>
                     }
                 </button>
             </td>
