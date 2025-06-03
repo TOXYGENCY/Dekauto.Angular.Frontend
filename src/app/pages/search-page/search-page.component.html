@@ -9,7 +9,8 @@
             <!-- Поле поиска по студентам -->
             <p-select [options]="students" name="fullName" (onChange)="syncGroup()" [checkmark]="true"
                 [(ngModel)]="selectedStudent" optionLabel="fullName" [filter]="true" filterBy="fullName"
-                [showClear]="true" placeholder="Введите/выберите ФИО студента" class="mb-6 w-full md:w-96">
+                [showClear]="true" placeholder="Введите/выберите ФИО студента" class="mb-6 w-full md:w-96"
+                [emptyMessage]="'Тут никого нет...'">
                 <ng-template #selectedItem let-student id="search">
                     <div class="flex items-center gap-2">
                         <div>{{ student.surname }} {{ student.name }} {{ student.patronymic }}</div>
@@ -38,7 +39,8 @@
             <!-- Поле поиска по группам -->
             <p-select [options]="groups" [checkmark]="true" name="group" [(ngModel)]="selectedGroup"
                 (ngModelChange)="onGroupChange($event)" optionLabel="name" [filter]="true" filterBy="name"
-                [showClear]="true" placeholder="Введите/выберите группу" class="w-full md:max-w-96" id="group">
+                [showClear]="true" placeholder="Введите/выберите группу" class="w-full md:max-w-96" id="group"
+                [emptyMessage]="'Групп пока нет...'">
                 <ng-template #selectedItem let-group>
                     <div class="flex items-center gap-2">
                         <div>{{ group.name }}</div>
@@ -64,9 +66,9 @@
                     </span>
                     }
                 </button>
-                <!--button pButton class="delete border-2!" severity="danger" outlined="true" (click)="deleteGroup($event)">
+                <button *ngIf="selectedGroup" pButton class="delete border-2!" severity="danger" outlined="true" (click)="confirmDeleteGroup($event)">
                     <i pButtonIcon class="pi pi-trash"></i>
-                </button-->
+                </button>
             </div>
             <!-- кнопка на подгрузку роутера со списком студентов -->
             <button pButton type="submit" [disabled]="tableLoading" class="font-bold border-2! mt-5 place-self-center"

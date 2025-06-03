@@ -233,21 +233,22 @@ export class SearchPageComponent implements OnInit {
   confirmDeleteGroup(event: Event) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
+      message: `Удалить ${this.selectedGroup?.name}?`,
       rejectButtonProps: {
-        icon: 'pi pi-cancel',
+        label: '',
+        icon: 'pi pi-ban',
         severity: 'secondary',
         outlined: true
       },
       acceptButtonProps: {
-        severity: 'success',
+        label: '',
+        severity: 'info',
         icon: 'pi pi-check',
       },
       accept: () => {
         this.deleteGroup(event);
-        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
       },
       reject: () => {
-        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
       }
     });
   }
@@ -262,9 +263,13 @@ export class SearchPageComponent implements OnInit {
           detail: `Группа ${this.selectedGroup!.name} успешно удалена`
         });
         this.selectedGroup = undefined;
+        this.dataManagerService.clearSelectedGroup();
+        this.getAllGroupsWithStudentsAsync();
+        btn.disabled = false;
       },
       error: (error: any) => {
         this.showError(error, "Группы: Ошибка удаления группы");
+        btn.disabled = false;
       }
     });
   }
