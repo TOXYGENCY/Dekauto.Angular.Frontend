@@ -1,0 +1,2 @@
+# Игнорировать изменения в папке workflows при слиянии веток
+.github/workflows/* merge=ours
