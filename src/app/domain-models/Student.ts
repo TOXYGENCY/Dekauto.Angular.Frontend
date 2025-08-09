@@ -6,6 +6,7 @@ export interface Student {
     surname?: string | null;
     patronymic?: string | null;
     groupId?: string | null;
+    fullName?: string | null;
     // gender?: boolean | null;
     // birthdayDate?: string | null;  // ISO date string (YYYY-MM-DD)
     // birthdayPlace?: string | null;

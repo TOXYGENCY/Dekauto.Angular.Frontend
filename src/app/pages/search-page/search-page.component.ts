@@ -84,8 +84,6 @@ export class SearchPageComponent implements OnInit {
     }
   }
 
-
-
   onGroupChange(group: Group | undefined) {
     this.dataManagerService.updateSelectedGroup(this.selectedGroup);
   }
@@ -104,7 +102,14 @@ export class SearchPageComponent implements OnInit {
   }
 
   onStudentsRecieved(recieved: Student[]) {
-    this.students = recieved;
+    // Добавляем поле с объединенным ФИО
+    var computedStudents = recieved.map(student => {
+      return {
+        ...student,
+        fullName: `${student.surname} ${student.name} ${student.patronymic}`.trim()
+      }
+    });
+    this.students = computedStudents;
     // Сохраняем в кэш
     this.cachedDataService.updateStudentsCache(this.students);
   }
