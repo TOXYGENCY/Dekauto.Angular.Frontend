@@ -7,6 +7,7 @@ import { ApiUsersService } from '../../api-services/users/api-users.service';
 import { User } from '../../domain-models/User';
 import { DataManagerService } from '../data-manager.service';
 import { CachedDataService } from '../cached-data.service';
+import { faro } from '@grafana/faro-web-sdk';
 
 @Injectable({
   providedIn: 'root' // Сервис предоставляется на уровне корневого модуля

@@ -18,6 +18,8 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
+    "@grafana/faro-web-sdk": "^1.19.0",
+    "@grafana/faro-web-tracing": "^1.19.0",
     "@primeng/themes": "^19.0.8",
     "@tailwindcss/postcss": "^4.0.9",
     "primeicons": "^7.0.0",
