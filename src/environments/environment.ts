@@ -1,5 +1,9 @@
 export const environment = {
-    production: false,
+    production: true,
+    app: {
+        name: "dekauto-angular-frontend",
+        name2: "angular"
+    },
     // Базовые настройки API
     api: {
         baseUrl: '/api',
@@ -19,6 +23,10 @@ export const environment = {
     // Импорт
     import: {
         url: '/api/import'
+    },
+    logs: {
+        logAppName: 'dekauto_frontend',
+        url: '/api/logs'
     },
     // Настройки безопасности
     security: {
