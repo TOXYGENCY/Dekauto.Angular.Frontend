@@ -15,12 +15,13 @@ export class LokiTransport extends BaseTransport implements Transport {
     this.lokiUrl = environment.logs.url;
   }
 
-  // Включаем пакетную отправку
   override isBatched(): boolean {
     return true;
   }
 
   override send(items: TransportItem[]): void | Promise<void> {
+    if (items.length === 0) return;
+
     try {
       const streams: any[] = [];
 
@@ -56,19 +57,19 @@ export class LokiTransport extends BaseTransport implements Transport {
         var timestampString = Date.parse(payload.timestamp) ?? Date.now();
         var timestamp = String(timestampString * 1000000); // потому что loki использует наносекунды, а faro - секунды
         stream.values.push([timestamp, String(payload.message ?? 'unknown')]);
-
-        // если ничего не добавилось, то и отправлять не будем
-        if (streams.length === 0) {
-          return;
-        }
-
-        // отправка логов (стрима) в loki
-        fetch(this.lokiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': "application/json" },
-          body: JSON.stringify({streams: streams})
-        })
       });
+
+      // если ничего не добавилось, то и отправлять не будем
+      if (streams.length === 0) {
+        return;
+      }
+
+      // отправка логов (стрима) в loki
+      fetch(this.lokiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': "application/json" },
+        body: JSON.stringify({ streams: streams })
+      })
 
     } catch (error) {
       console.error(error);
