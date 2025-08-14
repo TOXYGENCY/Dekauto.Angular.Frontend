@@ -37,10 +37,11 @@ export class LokiTransport extends BaseTransport implements Transport {
           и далее при использовании проверять */
         const payload: LogEvent | undefined = logItem.payload as LogEvent;
         const logLabels = {
-          app: String(environment.logs.logAppName),
+          service_name: String(environment.logs.logAppName),
+          app: "dekauto_full",
           env: environment.production ? 'prod' : 'dev',
           level: String(payload.level) ?? 'unknown',
-          session: String(logItem.meta.session?.id) || 'unknown'
+          frontend_session: String(logItem.meta.session?.id) || 'unknown'
         }
 
         // поиск существующего потока
