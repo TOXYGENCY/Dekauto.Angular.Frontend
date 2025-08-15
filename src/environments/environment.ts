@@ -26,7 +26,8 @@ export const environment = {
     },
     logs: {
         logAppName: 'dekauto_frontend',
-        url: '/api/logs'
+        url: '/api/logs',
+        batchInterval: 5000
     },
     // Настройки безопасности
     security: {

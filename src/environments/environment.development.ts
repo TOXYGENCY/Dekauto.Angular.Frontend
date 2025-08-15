@@ -27,7 +27,8 @@ export const environment = {
     logs: {
         logAppName: 'dekauto_frontend',
         // Будет перенаправлено через angular dev proxy на http://localhost:3100 (из proxy.conf.json)
-        url: '/loki/api/v1/push'
+        url: '/loki/api/v1/push',
+        batchInterval: 1000
     },
     // Настройки безопасности
     security: {

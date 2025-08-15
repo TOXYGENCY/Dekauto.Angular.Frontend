@@ -49,4 +49,4 @@ export const group_export_default_name = "Карточки студентов г
 // IMPORT
 export const import_api_url = `${backend_api_url}/import`;
 
-console.log("development config loaded");
+console.warn("Development config loaded.");
