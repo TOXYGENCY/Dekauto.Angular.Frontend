@@ -7,6 +7,19 @@
 - Отображение всей необходимой информации для полноценной работы с Dekauto
 - Хранение и управление токенами доступа и обновления для предоставления при запросах на сервер
 
+<div align="center">
+  
+  ## Форма входа:
+  <img align="center" width="80%" src="https://github.com/TOXYGENCY/TOXYGENCY/blob/master/assets/Dekauto/dekauto-login.png" align="center" />
+  
+  ## Панель управления:
+  <img align="center" width="80%" src="https://github.com/TOXYGENCY/TOXYGENCY/blob/master/assets/Dekauto/dekauto-main.png" align="center" />
+  
+  ## Панель управления (расширенная):
+  <img align="center" width="80%" src="https://github.com/TOXYGENCY/TOXYGENCY/blob/master/assets/Dekauto/dekauto-main-extended.png" align="center" />
+  
+</div>
+
 ### 🛠 Технологии
 - Git
 - [Angular CLI](https://github.com/angular/angular-cli) version 19.1.4
