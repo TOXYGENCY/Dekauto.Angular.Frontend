@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CheckboxModule } from 'primeng/checkbox';
 import { StyleClassModule } from 'primeng/styleclass';
 import { InputTextModule } from 'primeng/inputtext';
@@ -26,7 +26,7 @@ import { AuthService } from '../../services/auth/auth.service';
   styleUrl: './login-page.component.css'
 })
 
-export class LoginPageComponent implements OnInit {
+export class LoginPageComponent implements OnInit, AfterViewInit {
   constructor(private apiUsersService: ApiUsersService, 
     private authService: AuthService, private router: Router)  { }
 
@@ -42,9 +42,17 @@ export class LoginPageComponent implements OnInit {
     Validators.required,
     Validators.email
   ]);
+  @ViewChild("loginInput", { static: true }) loginElem!: ElementRef<HTMLInputElement>;
+  @ViewChild("passwordInput", { static: true }) passwordElem!: ElementRef<HTMLInputElement>;
+
 
   ngOnInit(): void {
     this.authService.logout();
+  }
+
+  ngAfterViewInit(): void {
+    this.login = String(this.loginElem.nativeElement.value);
+    this.passwordString = String(this.passwordElem.nativeElement.value);
   }
 
   ShowHint(state: boolean, text: string = "") {

@@ -3,72 +3,88 @@
 @import "tailwindcss-primeui";
 
 body {
-    height: 100vh;
-    font-size: 20px;
-    @apply bg-surface-50;
+  height: 100vh;
+  font-size: 20px;
+  @apply bg-surface-50;
 }
 label {
-    display: block; /* для отображения подписей сверху к полям */
+  display: block; /* для отображения подписей сверху к полям */
 }
 button {
-    @apply py-1!;
+  @apply py-1!;
 }
 .p-fileupload-file-info {
-    word-wrap: anywhere;
-    @apply text-sm;
+  word-wrap: anywhere;
+  @apply text-sm;
 }
 
 /* Переопределяем стили: применям Tailwind-классы поверх стандартных PrimeNG */
 .docx.p-button {
-    @apply bg-blue-500! border-blue-500! hover:bg-blue-600! hover:border-blue-600!;
+  @apply bg-blue-500! border-blue-500! hover:bg-blue-600! hover:border-blue-600!;
 }
 
 .p-fileupload-basic {
-    @apply justify-start!;
+  @apply justify-start!;
 }
 
 .p-fileupload-file:last-child {
-    @apply py-0;
+  @apply py-0;
+}
+
+.p-fileupload-file.ng-star-inserted {
+  @apply flex flex-row! flex-nowrap items-center p-0!;
 }
 
 .p-fileupload-header {
-    @apply justify-between pb-1!;
+  @apply justify-between p-2! pb-1!;
 }
 
 .p-fileupload-content {
-    @apply py-2 min-h-8! border-dashed! border-primary-200! justify-center! italic;
-    padding: 0.6rem 1.125rem !important;
+  @apply py-2 min-h-15! border-dashed! border-primary-200! justify-center! italic;
+  padding: 0.6rem 1.125rem !important;
 }
 
+
 .p-fileupload-file-name {
-    @apply max-w-60 text-nowrap overflow-x-auto;
+  @apply max-w-60 text-nowrap overflow-x-auto;
 }
 
 .p-fileupload-file-size {
-    @apply italic opacity-60;
+  @apply italic opacity-60 hidden;
 }
 
 p-menubar[name="header"] p-menubarsub {
-    width: 100%;
-    display: flex;
-    justify-content: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 p-tabmenu ul {
-    justify-content: center !important;
+  justify-content: center !important;
 }
 
-.p-confirmpopup-content {
-    /* display: none !important; */
-    @apply text-base;
+.p-button-label {
+  @apply text-sm;
+}
+
+.p-message-text.ng-star-inserted {
+  @apply text-xs not-italic;
+}
+p-progressbar {
+    @apply hidden;
+}
+
+.p-button-label .p-confirmpopup-content {
+  /* display: none !important; */
+  @apply text-base;
 }
 .p-confirmpopup {
-    /* padding: 0.7rem 0.75rem 0.7rem 0.75rem !important;  */
-    box-shadow: 0 4px 20px 13px rgba(0, 0, 0, 0.3),
-        0 2px 9px 1px rgba(0, 0, 0, 0.3) !important;
+  /* padding: 0.7rem 0.75rem 0.7rem 0.75rem !important;  */
+  box-shadow: 0 4px 20px 13px rgba(0, 0, 0, 0.3),
+    0 2px 9px 1px rgba(0, 0, 0, 0.3) !important;
 }
 
 .drag-hint {
-    @apply text-sm;
-    color: var(--p-select-placeholder-color);
+  @apply text-sm;
+  color: var(--p-select-placeholder-color);
 }

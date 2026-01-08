@@ -1,0 +1,11 @@
+/* Compact upload cards share layout tweaks */
+:host ::ng-deep .upload-card {
+  container-type: inline-size;
+}
+
+@container (max-width: 290px) {
+  :host ::ng-deep .upload-card .p-button-secondary {
+    display: none;
+  }
+}
+

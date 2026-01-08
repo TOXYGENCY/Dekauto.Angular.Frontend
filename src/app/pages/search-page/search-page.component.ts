@@ -23,6 +23,7 @@ import { HeaderComponent } from '../header/header.component';
 import { HttpResponse } from '@angular/common/http';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
+type UploadFileType = 'ld' | 'contract' | 'journal' | 'vedomost' | 'studyPlan';
 
 @Component({
   selector: 'app-search-page',
@@ -48,7 +49,7 @@ export class SearchPageComponent implements OnInit {
   ldFile: any = null; // Файл личного дела
   contractFile: any = null; // Файл журнала регистрации договоров
   journalFile: any = null; // Файл журнала выдачи зачеток
-  files: { ld?: File, contract?: File, journal?: File } = {};
+  files: { [key in UploadFileType]?: File } = {};
   uploadApiUrl: string = environment.api.baseUrl + '/import/LD';
 
   tableLoading: boolean = false;
@@ -164,13 +165,13 @@ export class SearchPageComponent implements OnInit {
   }
 
   // TODO: передлать на числовые индексы
-  onFileSelect(event: any, type: 'ld' | 'contract' | 'journal') {
+  onFileSelect(event: any, type: UploadFileType) {
     if (event.files && event.files.length > 0) {
       this.files[type] = event.files[0];
     }
   }
 
-  onClearFile(type: 'ld' | 'contract' | 'journal') {
+  onClearFile(type: UploadFileType) {
     this.files[type] = undefined;
   }
 
@@ -179,7 +180,7 @@ export class SearchPageComponent implements OnInit {
 
     const formData = new FormData();
 
-    if (!this.files.ld || !this.files.contract || !this.files.journal) {
+    if (!this.files.ld || !this.files.contract || !this.files.journal || !this.files.vedomost || !this.files.studyPlan) {
       this.showError(null, "Импорт: Не все файлы загружены.", "Пожалуйста, загрузите все требуемые файлы.");
       this.importLoading = false;
       return;
@@ -187,6 +188,8 @@ export class SearchPageComponent implements OnInit {
     if (this.files.ld) formData.append('ld', this.files.ld);
     if (this.files.contract) formData.append('contract', this.files.contract);
     if (this.files.journal) formData.append('journal', this.files.journal);
+    if (this.files.vedomost) formData.append('vedomost', this.files.vedomost);
+    if (this.files.studyPlan) formData.append('studyPlan', this.files.studyPlan);
 
     this.apiImportService.importFileAsync(formData).subscribe({
       next: response => {

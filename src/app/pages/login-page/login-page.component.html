@@ -9,12 +9,12 @@
     <div>
         <label for="login" class="block text-surface-900 font-medium mb-2">Логин<span
                 class="text-red-500 text-sm">*</span></label>
-        <input id="login" name="login" type="login" [(ngModel)]="login" (input)="onInputChange()" type="text"
+        <input #passwordInput id="login" name="login" type="login" [(ngModel)]="login" (input)="onInputChange()" type="text"
             placeholder="Введите логин" pInputText class="w-full mb-4" required>
 
         <label for="password" class="block text-surface-900 font-medium mb-2">Пароль<span
                 class="text-red-500 text-sm">*</span></label>
-        <input id="password" name="password" [(ngModel)]="passwordString" (input)="onInputChange()" type="password"
+        <input #passwordInput id="password" name="password" [(ngModel)]="passwordString" (input)="onInputChange()" type="password"
             placeholder="Введите пароль" pInputText class="w-full mb-4" required>
 
         <div *ngIf="showErrorHint" class="text-red-500 text-sm font-medium mb-4">{{ hintText }}</div>
