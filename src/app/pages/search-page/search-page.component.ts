@@ -70,21 +70,21 @@ export class SearchPageComponent implements OnInit {
   students: Student[] = [];
 
   // === Новые переменные для селектов ===
-  manufacturers: DropdownOption[] = [
+  manufacturers: any = [
     { name: 'Киржач', value: 'kirzhach' },
     { name: 'СБМ', value: 'sbm' },
     { name: 'Саратов', value: 'saratov' },
     // Добавьте нужные варианты
   ];
-  selectedManufacturer: DropdownOption | undefined;
+  selectedManufacturer: string | undefined;
 
-  educationLvl: DropdownOption[] = [
+  educationLvl: any = [
     { name: 'Бакалавриат', value: 'bachelor' },
     { name: 'Магистратура', value: 'master' },
     { name: 'Специалитет', value: 'specialist' },
     { name: 'Аспирантура', value: 'postgraduate' }
   ];
-  selectedEducationLvl: DropdownOption | undefined;
+  selectedEducationLvl: string | undefined;
 
   ngOnInit() {
     // Подписываемся на данные
@@ -98,11 +98,11 @@ export class SearchPageComponent implements OnInit {
     this.getAllGroupsWithStudentsAsync();
 
     if (this.manufacturers.length > 0) {
-      this.selectedManufacturer = this.manufacturers[0];
+      this.selectedManufacturer = this.manufacturers[0].value as string;
     }
 
     if (this.educationLvl.length > 0) {
-      this.selectedEducationLvl = this.educationLvl[0];
+      this.selectedEducationLvl = this.educationLvl[0].value as string;
     }
   }
 
@@ -237,12 +237,11 @@ export class SearchPageComponent implements OnInit {
     });
   }
 
-  // === Методы для обработки изменений в селектах (если нужна доп. логика) ===
   selectManufacturer() {
     console.log('Выбран производитель:', this.selectedManufacturer);
   }
 
-  selecteducationLvl() {
+  selectEducationLvl() {
     console.log('Выбран уровень образования:', this.selectedEducationLvl);
   }
 
@@ -275,12 +274,11 @@ export class SearchPageComponent implements OnInit {
     formData.append('studentCard', this.files.studentCard);
 
     // Добавляем параметры из селектов
-    // Примечание: уточните ключи 'manufacturer' и 'educationLevel' в вашем Backend API
-    formData.append('manufacturer', this.selectedManufacturer.value.toString());
-    formData.append('educationLevel', this.selectedEducationLvl.value.toString());
+    formData.append('manufacturer', this.selectedManufacturer);
+    formData.append('educationLevel', this.selectedEducationLvl);
 
     this.apiImportService.importCardExportDiplomaSupplementAsync(formData).subscribe({
-      next: (response: any) => { // Используем 'any' или HttpResponse<Blob>, зависит от вашего сервиса
+      next: (response: any) => {
 
         // Логика скачивания файла (если бэкенд возвращает файл сразу)
         if (response.body) {
