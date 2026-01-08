@@ -24,6 +24,10 @@ import { HttpResponse } from '@angular/common/http';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
 type UploadFileType = 'ld' | 'contract' | 'journal' | 'vedomost' | 'studyPlan' | 'studentCard';
+interface DropdownOption {
+  name: string;
+  value: string | number;
+}
 
 @Component({
   selector: 'app-search-page',
@@ -65,6 +69,22 @@ export class SearchPageComponent implements OnInit {
   selectedGroup: Group | undefined;
   students: Student[] = [];
 
+  // === Новые переменные для селектов ===
+  manufacturers: DropdownOption[] = [
+    { name: 'Киржач', value: 'kirzhach' },
+    { name: 'СБМ', value: 'sbm' },
+    { name: 'Саратов', value: 'saratov' },
+    // Добавьте нужные варианты
+  ];
+  selectedManufacturer: DropdownOption | undefined;
+
+  educationLvl: DropdownOption[] = [
+    { name: 'Бакалавриат', value: 'bachelor' },
+    { name: 'Магистратура', value: 'master' },
+    { name: 'Специалитет', value: 'specialist' },
+    { name: 'Аспирантура', value: 'postgraduate' }
+  ];
+  selectedEducationLvl: DropdownOption | undefined;
 
   ngOnInit() {
     // Подписываемся на данные
@@ -76,6 +96,14 @@ export class SearchPageComponent implements OnInit {
     // this.getAllStudentsAsync();
     // this.getAllGroupsAsync();
     this.getAllGroupsWithStudentsAsync();
+
+    if (this.manufacturers.length > 0) {
+      this.selectedManufacturer = this.manufacturers[0];
+    }
+
+    if (this.educationLvl.length > 0) {
+      this.selectedEducationLvl = this.educationLvl[0];
+    }
   }
 
   // По уничтожении компонента отписываемся
@@ -175,7 +203,7 @@ export class SearchPageComponent implements OnInit {
     this.files[type] = undefined;
   }
 
-  uploadAll() {
+  uploadAllForCard() {
     this.importLoading = true;
 
     const formData = new FormData();
@@ -209,8 +237,73 @@ export class SearchPageComponent implements OnInit {
     });
   }
 
+  // === Методы для обработки изменений в селектах (если нужна доп. логика) ===
+  selectManufacturer() {
+    console.log('Выбран производитель:', this.selectedManufacturer);
+  }
 
-  exportStudent(studentId: string) {
+  selecteducationLvl() {
+    console.log('Выбран уровень образования:', this.selectedEducationLvl);
+  }
+
+  // === Обновленная функция отправки ===
+  uploadAndExportDiplomaSupplement() {
+    this.importLoading = true;
+
+    // Валидация
+    if (!this.files.studentCard) {
+      this.showError(null, "Импорт: Не прикреплена карточка студента.", "Пожалуйста, загрузите Excel-файл с карточкой студента.");
+      this.importLoading = false;
+      return;
+    }
+
+    if (!this.selectedManufacturer) {
+      this.showError(null, "Валидация: Не выбран шаблон.", "Пожалуйста, выберите производителя шаблона.");
+      this.importLoading = false;
+      return;
+    }
+
+    if (!this.selectedEducationLvl) {
+      this.showError(null, "Валидация: Не выбран уровень образования.", "Пожалуйста, укажите уровень образования.");
+      this.importLoading = false;
+      return;
+    }
+
+    const formData = new FormData();
+
+    // Добавляем файл
+    formData.append('studentCard', this.files.studentCard);
+
+    // Добавляем параметры из селектов
+    // Примечание: уточните ключи 'manufacturer' и 'educationLevel' в вашем Backend API
+    formData.append('manufacturer', this.selectedManufacturer.value.toString());
+    formData.append('educationLevel', this.selectedEducationLvl.value.toString());
+
+    this.apiImportService.importCardExportDiplomaSupplementAsync(formData).subscribe({
+      next: (response: any) => { // Используем 'any' или HttpResponse<Blob>, зависит от вашего сервиса
+
+        // Логика скачивания файла (если бэкенд возвращает файл сразу)
+        if (response.body) {
+          const fileName = this.fileSavingService.parseFileName(response, 'diploma_supplement.docx');
+          this.fileSavingService.saveFile(response.body as Blob, fileName);
+        }
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Успех',
+          detail: 'Приложение к диплому успешно сформировано и скачано.'
+        });
+        this.importLoading = false;
+      },
+      error: error => {
+        this.showError(error, "Ошибка формирования приложения к диплому");
+        this.importLoading = false;
+      }
+    });
+  }
+
+
+  exportStudentCard(studentId: string) {
     this.exportLoading = true;
     this.apiExportService.exportStudentCardAsync(studentId).subscribe({
       next: (response) => {
@@ -224,7 +317,7 @@ export class SearchPageComponent implements OnInit {
     });
   }
 
-  exportGroup(GroupId: string) {
+  exportGroupCards(GroupId: string) {
     this.exportLoading = true;
     this.apiExportService.exportGroupCardsAsync(GroupId).subscribe({
       next: (response) => {

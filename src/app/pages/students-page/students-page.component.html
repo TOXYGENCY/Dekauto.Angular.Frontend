@@ -19,7 +19,7 @@
                 </button>
             </td>
             <td class="excel">
-                <button pButton class="excel" (click)="exportStudent(student.id, $event)">
+                <button pButton class="excel" (click)="exportStudentCard(student.id, $event)">
                     @if (exportLoading) {
                     <span pButtonIcon class="pi pi-spin pi-spinner"></span>
                     } @else {

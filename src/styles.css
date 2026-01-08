@@ -9,7 +9,7 @@ body {
 }
 label {
   display: block; /* для отображения подписей сверху к полям */
-  @apply pl-0.5 text-center;
+  @apply pl-0.5 text-center pb-1;
 }
 
 button {

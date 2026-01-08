@@ -44,7 +44,7 @@
           *ngIf="selectedStudent"
           pButton
           class="excel place-self-center -mt-3.5"
-          (click)="exportStudent(selectedStudent!.id!)"
+          (click)="exportStudentCard(selectedStudent!.id!)"
         >
           @if (exportLoading) {
           <span pButtonIcon class="pi pi-spin pi-spinner"></span>
@@ -92,7 +92,7 @@
             pButton
             class="excel place-self-center"
             [disabled]="exportLoading || selectedGroup.students?.length == 0"
-            (click)="exportGroup(selectedGroup!.id!)"
+            (click)="exportGroupCards(selectedGroup!.id!)"
           >
             @if (exportLoading) {
             <span pButtonIcon class="pi pi-spin pi-spinner"></span>
@@ -137,11 +137,11 @@
           } Обновить таблицу
         </button>
       </form>
-      <div class="flex flex-col p-1 gap-2 self-center">
+      <div class="flex flex-col p-1 gap-2 self-center text-sm">
         <div class="gap-3 w-full">
-        <label for="uploadCard" class="">Для приложения к диплому</label>
+        <label for="uploadCard" class="text-xl">Для приложения к диплому</label>
           <p-fileupload
-            class="upload-card"
+            class="upload-card rounded-b-none!"
             mode="advanced"
             name="uploadCard"
             chooseLabel="Карточка студента"
@@ -158,6 +158,65 @@
               <span class="drag-hint">Перетащите файл карточки студента сюда.</span>
             </ng-template>
           </p-fileupload>
+
+          <div class="flex flex-row">
+            <!-- Выбор производителя шаблона -->
+            <p-select
+            [options]="manufacturers"
+            name="manufacturerSelect"
+            (onChange)="selectManufacturer()"
+            [checkmark]="true"
+            [(ngModel)]="selectedManufacturer"
+            dataKey="value"
+            placeholder="Выберите шаблон"
+            class="w-1/2 rounded-t-none! rounded-br-none! border-t-0!"
+            [emptyMessage]="'Шаблонов нет...'"
+            >
+            <ng-template #selectedItem let-manufacturer id="search">
+                <div class="flex items-center gap-2">
+                <div>
+                    {{ manufacturer.name }}
+                </div>
+                </div>
+            </ng-template>
+            <ng-template let-manufacturer #item>
+                <div class="flex items-center gap-2">
+                <div>
+                    {{ manufacturer.name }}
+                </div>
+                </div>
+            </ng-template>
+            </p-select>
+
+            <!-- Выбор производителя шаблона -->
+            <p-select
+            [options]="educationLvl"
+            name="educationLvlSelect"
+            (onChange)="selecteducationLvl()"
+            [checkmark]="true"
+            [(ngModel)]="selectedEducationLvl"
+            dataKey="value"
+            placeholder="Выберите образование"
+            class="w-1/2 rounded-t-none! rounded-bl-none! border-t-0!"
+            [emptyMessage]="'Опций нет...'"
+            >
+            <ng-template #selectedItem let-educationLvl id="search">
+                <div class="flex items-center gap-2">
+                <div>
+                    {{ educationLvl.name }}
+                </div>
+                </div>
+            </ng-template>
+            <ng-template let-educationLvl #item>
+                <div class="flex items-center gap-2">
+                <div>
+                    {{ educationLvl.name }}
+                </div>
+                </div>
+            </ng-template>
+            </p-select>
+        </div>
+
         </div>
         <button
           pButton
@@ -166,7 +225,7 @@
             importLoading ||
             !files.studentCard
           "
-          (click)="uploadAll()"
+          (click)="uploadAndExportDiplomaSupplement()"
           severity="info"
         >
           @if (importLoading) {
@@ -283,7 +342,7 @@
           !files.vedomost ||
           !files.studyPlan
         "
-        (click)="uploadAll()"
+        (click)="uploadAllForCard()"
         severity="info"
       >
         @if (importLoading) {

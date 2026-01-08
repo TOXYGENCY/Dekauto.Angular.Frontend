@@ -95,7 +95,7 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     return this.groups.find(g => g.id == groupId)?.name || '-';
   }
 
-  exportStudent(studentId: string, event: any) {
+  exportStudentCard(studentId: string, event: any) {
     let btn = event.target.closest('button');
     btn.disabled = true;
     // this.exportLoading = true;
@@ -113,7 +113,7 @@ export class StudentsPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  exportGroup(groupId: string, event: any) {
+  exportGroupCards(groupId: string, event: any) {
     let btn = event.target.closest('button');
     btn.disabled = true;
 
