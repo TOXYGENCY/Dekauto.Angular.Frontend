@@ -23,7 +23,7 @@ import { HeaderComponent } from '../header/header.component';
 import { HttpResponse } from '@angular/common/http';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 
-type UploadFileType = 'ld' | 'contract' | 'journal' | 'vedomost' | 'studyPlan';
+type UploadFileType = 'ld' | 'contract' | 'journal' | 'vedomost' | 'studyPlan' | 'studentCard';
 
 @Component({
   selector: 'app-search-page',
