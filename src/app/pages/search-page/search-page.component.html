@@ -301,9 +301,9 @@
           [accept]="excelFileFormat"
           maxFileSize="20971520"
           [cancelLabel]="cancelLabel"
-          (onSelect)="onFileSelect($event, 'vedomost')"
-          (onRemove)="onClearFile('vedomost')"
-          (onClear)="onClearFile('vedomost')"
+          (onSelect)="onFileSelect($event, 'statement')"
+          (onRemove)="onClearFile('statement')"
+          (onClear)="onClearFile('statement')"
           showUploadButton="false"
         >
           <ng-template #empty>
@@ -318,9 +318,9 @@
           [accept]="excelFileFormat"
           maxFileSize="20971520"
           [cancelLabel]="cancelLabel"
-          (onSelect)="onFileSelect($event, 'studyPlan')"
-          (onRemove)="onClearFile('studyPlan')"
-          (onClear)="onClearFile('studyPlan')"
+          (onSelect)="onFileSelect($event, 'plan')"
+          (onRemove)="onClearFile('plan')"
+          (onClear)="onClearFile('plan')"
           showUploadButton="false"
         >
           <ng-template #empty>
@@ -337,8 +337,8 @@
           !files.ld ||
           !files.contract ||
           !files.journal ||
-          !files.vedomost ||
-          !files.studyPlan
+          !files.statement ||
+          !files.plan
         "
         (click)="uploadAllForCard()"
         severity="info"

@@ -6,7 +6,7 @@ import { Student } from '../../domain-models/Student';
 import { Group } from '../../domain-models/Group';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { RouterModule } from '@angular/router';
-import { ApiExportService } from '../../api-services/export/api-export.service';
+import { ApiExportService, DiplomaSupplementExportRequest } from '../../api-services/export/api-export.service';
 import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
 import { ApiStudentsService } from '../../api-services/students/api-students.service';
 import { ApiGroupsService } from '../../api-services/groups/api-groups.service';
@@ -22,12 +22,9 @@ import { environment } from '../../../environments/environment.development';
 import { HeaderComponent } from '../header/header.component';
 import { HttpResponse } from '@angular/common/http';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { diploma_supplement_export_default_name } from '../../app.config';
 
-type UploadFileType = 'ld' | 'contract' | 'journal' | 'vedomost' | 'studyPlan' | 'studentCard';
-interface DropdownOption {
-  name: string;
-  value: string | number;
-}
+type UploadFileType = 'ld' | 'contract' | 'journal' | 'statement' | 'plan' | 'studentCard';
 
 @Component({
   selector: 'app-search-page',
@@ -208,7 +205,7 @@ export class SearchPageComponent implements OnInit {
 
     const formData = new FormData();
 
-    if (!this.files.ld || !this.files.contract || !this.files.journal || !this.files.vedomost || !this.files.studyPlan) {
+    if (!this.files.ld || !this.files.contract || !this.files.journal || !this.files.statement || !this.files.plan) {
       this.showError(null, "Импорт: Не все файлы загружены.", "Пожалуйста, загрузите все требуемые файлы.");
       this.importLoading = false;
       return;
@@ -216,8 +213,8 @@ export class SearchPageComponent implements OnInit {
     if (this.files.ld) formData.append('ld', this.files.ld);
     if (this.files.contract) formData.append('contract', this.files.contract);
     if (this.files.journal) formData.append('journal', this.files.journal);
-    if (this.files.vedomost) formData.append('vedomost', this.files.vedomost);
-    if (this.files.studyPlan) formData.append('studyPlan', this.files.studyPlan);
+    if (this.files.statement) formData.append('statement', this.files.statement);
+    if (this.files.plan) formData.append('plan', this.files.plan);
 
     this.apiImportService.importFileAsync(formData).subscribe({
       next: response => {
@@ -245,11 +242,11 @@ export class SearchPageComponent implements OnInit {
     console.log('Выбран уровень образования:', this.selectedEducationLvl);
   }
 
-  // === Обновленная функция отправки ===
+  // ДВУХЭТАПНАЯ ОТПРАВКА И ЭКСПОРТ
   uploadAndExportDiplomaSupplement() {
     this.importLoading = true;
 
-    // Валидация
+    // 0. Валидация
     if (!this.files.studentCard) {
       this.showError(null, "Импорт: Не прикреплена карточка студента.", "Пожалуйста, загрузите Excel-файл с карточкой студента.");
       this.importLoading = false;
@@ -268,33 +265,51 @@ export class SearchPageComponent implements OnInit {
       return;
     }
 
-    const formData = new FormData();
+    // ЭТАП 1: Подготовка файла и импорт
+    const importFormData = new FormData();
+    importFormData.append('studentCard', this.files.studentCard);
 
-    // Добавляем файл
-    formData.append('studentCard', this.files.studentCard);
-
-    // Добавляем параметры из селектов
-    formData.append('manufacturer', this.selectedManufacturer);
-    formData.append('educationLevel', this.selectedEducationLvl);
-
-    this.apiImportService.importCardExportDiplomaSupplementAsync(formData).subscribe({
-      next: (response: any) => {
-
-        // Логика скачивания файла (если бэкенд возвращает файл сразу)
-        if (response.body) {
-          const fileName = this.fileSavingService.parseFileName(response, 'diploma_supplement.docx');
-          this.fileSavingService.saveFile(response.body as Blob, fileName);
-        }
+    // Вызываем метод сервиса для импорта файла
+    this.apiImportService.importFileAsync(importFormData).subscribe({
+      next: (diplomaSupplementData: any) => {
 
         this.messageService.add({
-          severity: 'success',
-          summary: 'Успех',
-          detail: 'Приложение к диплому успешно сформировано и скачано.'
+          severity: 'info',
+          summary: 'Обработка файла',
+          detail: 'Файл успешно обработан. Формирование документа...'
         });
-        this.importLoading = false;
+
+        // ЭТАП 2: Подготовка объекта запроса на экспорт
+        const exportRequest: DiplomaSupplementExportRequest = {
+          diplomaSupplementData: diplomaSupplementData,
+          manufacturer: this.selectedManufacturer!,
+          educationLevel: this.selectedEducationLvl!
+        };
+
+        // Вызываем метод сервиса для экспорта документа
+        this.apiExportService.exportDiplomaSupplementAsync(exportRequest).subscribe({
+          next: (response: HttpResponse<Blob>) => {
+            // Логика скачивания файла
+            if (response.body) {
+              const fileName = this.fileSavingService.parseFileName(response, diploma_supplement_export_default_name);
+              this.fileSavingService.saveFile(response.body, fileName);
+            }
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Успех',
+              detail: 'Приложение к диплому успешно сформировано и скачано.'
+            });
+            this.importLoading = false;
+          },
+          error: (error: any) => {
+            this.showError(error, "Экспорт: Ошибка генерации документа", "Не удалось сформировать файл на основе полученных данных.");
+            this.importLoading = false;
+          }
+        });
       },
-      error: error => {
-        this.showError(error, "Ошибка формирования приложения к диплому");
+      error: (error: any) => {
+        this.showError(error, "Импорт: Ошибка обработки файла", "Не удалось импортировать карточку студента.");
         this.importLoading = false;
       }
     });

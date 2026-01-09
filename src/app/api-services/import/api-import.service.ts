@@ -15,8 +15,4 @@ export class ApiImportService {
   public importFileAsync(formData: FormData): Observable<any> {
     return this.http.post(`${this.import_api_url}`, formData);
   }
-
-  public importCardExportDiplomaSupplementAsync(formData: FormData): Observable<any> {
-    return this.http.post(`${this.import_api_url}/diploma-supplement`, formData);
-  }
 }
